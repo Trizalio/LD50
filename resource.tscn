@@ -1,0 +1,98 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://resource.gd" type="Script" id=1]
+[ext_resource path="res://resources/dynamic_fonts/main.tres" type="DynamicFont" id=2]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.198273, 0.219994, 0.285156, 1 )
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.380392, 0.4, 0.454902, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 0.8, 0.8, 0.8, 0 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.2, 0.219608, 0.286275, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.380392, 0.4, 0.454902, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="resource" type="MarginContainer"]
+margin_right = 225.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 200, 34 )
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="outer" type="MarginContainer" parent="."]
+margin_right = 238.0
+margin_bottom = 34.0
+size_flags_horizontal = 0
+
+[node name="panel" type="Panel" parent="outer"]
+margin_right = 238.0
+margin_bottom = 34.0
+custom_styles/panel = SubResource( 1 )
+
+[node name="inner" type="MarginContainer" parent="outer"]
+margin_right = 238.0
+margin_bottom = 34.0
+custom_constants/margin_right = 10
+custom_constants/margin_left = 10
+
+[node name="hbox" type="HBoxContainer" parent="outer/inner"]
+margin_left = 10.0
+margin_right = 228.0
+margin_bottom = 34.0
+alignment = 1
+
+[node name="label" type="Label" parent="outer/inner/hbox"]
+margin_top = 6.0
+margin_right = 80.0
+margin_bottom = 28.0
+custom_fonts/font = ExtResource( 2 )
+text = "RESOURCE"
+
+[node name="center" type="CenterContainer" parent="outer/inner/hbox"]
+margin_left = 84.0
+margin_right = 184.0
+margin_bottom = 34.0
+
+[node name="bar" type="ProgressBar" parent="outer/inner/hbox/center"]
+margin_top = 5.0
+margin_right = 100.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 100, 0 )
+custom_styles/fg = SubResource( 2 )
+custom_styles/bg = SubResource( 3 )
+custom_fonts/font = ExtResource( 2 )
+max_value = 0.0
+
+[node name="value" type="Label" parent="outer/inner/hbox"]
+margin_left = 188.0
+margin_top = 6.0
+margin_right = 218.0
+margin_bottom = 28.0
+custom_fonts/font = ExtResource( 2 )
+text = "0/0"

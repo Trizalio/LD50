@@ -1,0 +1,191 @@
+[gd_scene load_steps=11 format=2]
+
+[sub_resource type="StyleBoxFlat" id=1]
+border_width_left = 2
+border_color = Color( 1, 0.992157, 0, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 4.0
+expand_margin_right = 3.0
+
+[sub_resource type="StyleBoxFlat" id=2]
+draw_center = false
+border_width_top = 2
+border_color = Color( 0, 1, 0.180392, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id=3]
+draw_center = false
+border_width_right = 2
+border_color = Color( 0, 0.996078, 1, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id=4]
+draw_center = false
+border_width_bottom = 2
+border_color = Color( 1, 0, 0, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.282353, 0.298039, 0.360784, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 3.0
+expand_margin_right = 2.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.2, 0.219608, 0.286275, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 3.0
+expand_margin_right = 2.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.282353, 0.298039, 0.360784, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.129412, 0.14902, 0.203922, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id=9]
+bg_color = Color( 0.254902, 0.262745, 0.294118, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id=10]
+bg_color = Color( 0.2, 0.219608, 0.286275, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="star" type="Control"]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button1" type="Button" parent="."]
+visible = false
+modulate = Color( 1, 1, 1, 0.588235 )
+margin_left = -5.33098
+margin_top = -8.29961
+margin_right = 4.66902
+margin_bottom = 5.70039
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_styles/disabled = SubResource( 1 )
+custom_styles/normal = SubResource( 1 )
+disabled = true
+button_mask = 0
+enabled_focus_mode = 0
+text = "+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button3" type="Button" parent="."]
+visible = false
+modulate = Color( 1, 1, 1, 0.588235 )
+margin_left = -5.33098
+margin_top = -8.29961
+margin_right = 2.66902
+margin_bottom = 7.70039
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_styles/normal = SubResource( 2 )
+text = "+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button4" type="Button" parent="."]
+visible = false
+modulate = Color( 1, 1, 1, 0.588235 )
+margin_left = -5.33098
+margin_top = -8.29961
+margin_right = 4.66902
+margin_bottom = 5.70039
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_styles/normal = SubResource( 3 )
+text = "+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button5" type="Button" parent="."]
+visible = false
+modulate = Color( 1, 1, 1, 0.588235 )
+margin_left = -5.33098
+margin_top = -8.29961
+margin_right = 2.66902
+margin_bottom = 7.70039
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_styles/normal = SubResource( 4 )
+text = "+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="."]
+margin_left = -3.33098
+margin_top = -7.29961
+margin_right = 4.66902
+margin_bottom = 6.70039
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_styles/hover = SubResource( 6 )
+custom_styles/normal = SubResource( 5 )
+text = "+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="to_science" type="Button" parent="."]
+margin_left = 31.1552
+margin_top = -17.9396
+margin_right = 99.1552
+margin_bottom = 21.0604
+focus_mode = 0
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 8 )
+custom_styles/disabled = SubResource( 9 )
+custom_styles/normal = SubResource( 10 )
+enabled_focus_mode = 0
+text = "Science"
+__meta__ = {
+"_edit_use_anchors_": false
+}

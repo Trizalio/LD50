@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://resource.tscn" type="PackedScene" id=1]
+[ext_resource path="res://resources_panel.gd" type="Script" id=2]
+
+[node name="resources_panel" type="MarginContainer"]
+margin_right = 1400.0
+margin_bottom = 58.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="panel" type="Panel" parent="."]
+margin_right = 1400.0
+margin_bottom = 58.0
+
+[node name="inner" type="MarginContainer" parent="."]
+margin_right = 1400.0
+margin_bottom = 58.0
+size_flags_vertical = 0
+custom_constants/margin_right = 200
+custom_constants/margin_top = 12
+custom_constants/margin_left = 30
+custom_constants/margin_bottom = 12
+
+[node name="resources" type="HBoxContainer" parent="inner"]
+margin_left = 30.0
+margin_top = 12.0
+margin_right = 1200.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="materials" parent="inner/resources" instance=ExtResource( 1 )]
+margin_right = 387.0
+margin_bottom = 34.0
+text = "MATERIALS"
+
+[node name="energy" parent="inner/resources" instance=ExtResource( 1 )]
+margin_left = 391.0
+margin_right = 778.0
+margin_bottom = 34.0
+text = "ENERGY"
+
+[node name="food" parent="inner/resources" instance=ExtResource( 1 )]
+margin_left = 782.0
+margin_right = 1170.0
+margin_bottom = 34.0
+text = "FOOD"
