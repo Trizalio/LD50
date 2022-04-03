@@ -2,11 +2,11 @@
 
 [ext_resource path="res://resources/shaders/planet.shader" type="Shader" id=1]
 
-[sub_resource type="OpenSimplexNoise" id=13]
+[sub_resource type="OpenSimplexNoise" id=1]
 
-[sub_resource type="NoiseTexture" id=14]
+[sub_resource type="NoiseTexture" id=2]
 seamless = true
-noise = SubResource( 13 )
+noise = SubResource( 1 )
 
 [resource]
 shader = ExtResource( 1 )
@@ -25,4 +25,4 @@ shader_param/striping = 10.0
 shader_param/ice_amount = 0.2
 shader_param/main_and_second_colors_mixing = 0.3
 shader_param/main_and_second_colors_distribution = 0.5
-shader_param/noise = SubResource( 14 )
+shader_param/noise = SubResource( 2 )

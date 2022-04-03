@@ -2,14 +2,18 @@
 
 [ext_resource path="res://resources/shaders/star.shader" type="Shader" id=1]
 
-[sub_resource type="OpenSimplexNoise" id=13]
+[sub_resource type="OpenSimplexNoise" id=1]
 
-[sub_resource type="NoiseTexture" id=14]
+[sub_resource type="NoiseTexture" id=2]
 seamless = true
-noise = SubResource( 13 )
+noise = SubResource( 1 )
 
 [resource]
 shader = ExtResource( 1 )
 shader_param/main_color = Color( 0.996078, 1, 0.54902, 1 )
+shader_param/selection_color = Color( 0.5, 0.5, 0, 0.6 )
 shader_param/size = 0.4
-shader_param/noise = SubResource( 14 )
+shader_param/glow_power = 0.06
+shader_param/selection_width = 0.08
+shader_param/selection_gap = 0.0
+shader_param/noise = SubResource( 2 )

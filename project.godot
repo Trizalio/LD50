@@ -8,11 +8,29 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node2D",
+"class": "Planet",
+"language": "GDScript",
+"path": "res://planet.gd"
+} ]
+_global_script_class_icons={
+"Planet": ""
+}
+
 [application]
 
 config/name="LD50"
 run/main_scene="res://system.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+AudioManager="*res://singletones/audio_manager.gd"
+Animator="*res://singletones/animator.gd"
+Rand="*res://singletones/rand.gd"
+SceneChanger="*res://singletones/scene_changer.gd"
+Utils="*res://singletones/utils.gd"
 
 [display]
 
