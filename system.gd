@@ -27,6 +27,11 @@ func descend_into_star(ustar):
 	print('descend_into_star: ', ustar)
 	var universe_map = $universe_map
 	var system_map = $system_map
+	
+	
+	var star = PlanetScene.instance()
+	star.prepare_star(ustar)
+	system_map.load_system(star, GameState.get_planets_by_ustar(ustar))
 #	universe_map.zoom_camera(1, map_star.position)
 #	universe_map.move_camera_to_planet(map_star, 100)
 	var zoom_scale = UNIVERSE_DEFAULT_ZOOM
@@ -90,22 +95,23 @@ func _ready():
 		PlanetScene.instance().prepare_ustar(),
 	]
 	ustars[0].position = Vector2(100, 100)
+	ustars[0].is_inhibitable = true
 	ustars[1].position = Vector2(-150, 70)
 	ustars[2].position = Vector2(-110, -130)
 	ustars[3].position = Vector2(10, -11)
 	universe_map.load_universe(ustars)
 #	pass_stars_to_marks(ustars)
-	
-	var system_map = $system_map
-	system_map.modulate = TRANSPARENT
-	system_map.zoom_camera(0.0001)
-	var planet = PlanetScene.instance()
-	planet.prepare_gas_giant()
-	var star = PlanetScene.instance()
-	star.prepare_star()
-	planet.position = Vector2(100, 300)
-	system_map.load_system(star, [planet])
-	pass # Replace with function body.
+#
+#	var system_map = $system_map
+#	system_map.modulate = TRANSPARENT
+#	system_map.zoom_camera(0.0001)
+#	var planet = PlanetScene.instance()
+#	planet.prepare_gas_giant(ustars[0])
+#	planet.position = Vector2(100, 300)
+#	var star = PlanetScene.instance()
+#	star.prepare_star(ustars[0])
+#	system_map.load_system(star, [planet])
+#	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

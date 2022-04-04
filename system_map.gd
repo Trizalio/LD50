@@ -39,13 +39,19 @@ func load_universe(stars: Array):
 	
 func load_system(star, planets: Array):
 	print('load_system: ', star, ', planets:', planets)
+	clear_planets()
 	add_planet(star)
 	for planet in planets:
 		add_planet(planet)
 
+func clear_planets():
+	var planets = $base/root/planets
+	for child in planets.get_children():
+		planets.remove_child(child)
+	
 func add_planet(planet: Planet):
-	var root = $base/root
-	root.add_child(planet)
+	var planets = $base/root/planets
+	planets.add_child(planet)
 	planet.connect("pressed", self, 'planet_pressed', [planet])
 
 func remove_buttons():
@@ -176,13 +182,16 @@ func make_texture(colors): # vectors is array of Color objects
 	return tex
 
 const shader_scale = 22 * 64 / 2
+func pack(value: float) -> float:
+	return value / shader_scale / 2 + 0.5
 func pass_stars_to_marks(ustars):
 	var data = []
 	for star in ustars:
 		data.append(Color(
-			star.position.x / shader_scale / 2 + 0.5, 
-			star.position.y / shader_scale / 2 + 0.5, 
-			0, 0
+			pack(star.position.x), 
+			pack(star.position.y), 
+			pack(star.get_jump_range()), 
+			pack(star.get_scan_range())
 		))
 	print(data)
 #	data = [Color(0, 0.5, 0, 0)]
