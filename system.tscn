@@ -1,10 +1,12 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://resources_panel.tscn" type="PackedScene" id=1]
 [ext_resource path="res://system.gd" type="Script" id=2]
 [ext_resource path="res://star_map.tscn" type="PackedScene" id=3]
 [ext_resource path="res://resources/dynamic_fonts/main.tres" type="DynamicFont" id=4]
 [ext_resource path="res://system_map.tscn" type="PackedScene" id=5]
+[ext_resource path="res://icon.png" type="Texture" id=6]
+[ext_resource path="res://space_background.tscn" type="PackedScene" id=7]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.282353, 0.298039, 0.360784, 1 )
@@ -12,6 +14,10 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+expand_margin_left = 6.0
+expand_margin_right = 6.0
+expand_margin_top = 6.0
+expand_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id=2]
 bg_color = Color( 0.129412, 0.14902, 0.203922, 1 )
@@ -19,6 +25,10 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+expand_margin_left = 6.0
+expand_margin_right = 6.0
+expand_margin_top = 6.0
+expand_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.254902, 0.262745, 0.294118, 1 )
@@ -26,6 +36,10 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+expand_margin_left = 6.0
+expand_margin_right = 6.0
+expand_margin_top = 6.0
+expand_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0.2, 0.219608, 0.286275, 1 )
@@ -33,6 +47,129 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+expand_margin_left = 6.0
+expand_margin_right = 6.0
+expand_margin_top = 6.0
+expand_margin_bottom = 6.0
+
+[sub_resource type="Shader" id=8]
+code = "shader_type canvas_item;
+uniform sampler2D noise;
+
+uniform vec4 main_color: hint_color = vec4(1., 1., 1., 1.);
+uniform vec4 selection_color: hint_color = vec4(0.5, 0.5, .0, .6);
+uniform float size = 0.09;
+uniform float glow_power = .006;
+uniform float selection_width = 0.08;
+uniform float selection_gap = 0.0;
+const float inner_part = 0.9;
+const float inner_alpha = 0.9;
+const float M_PI = atan(1.) * 4.;
+const float M_2_PI = M_PI * 2.;
+const float M_PI_2 = M_PI / 2.;
+
+vec4 lighten(vec4 color, float power){
+	vec4 missing_color = vec4(1.) - color;
+	vec4 result = color + missing_color * power;
+	return result;
+}
+
+float get_normalised_squere_angle(float x, float y, float time){
+	float b_angle = atan(x, y) + time * 0.3;
+	while (b_angle > .0){
+		b_angle -= M_PI_2;
+	}
+	while (b_angle < .0){
+		b_angle += M_PI_2;
+	}
+	float n_angle = b_angle / M_PI_2;
+	return n_angle;
+}
+
+void fragment(){
+	float ax = UV.x;
+	float ay = UV.y;
+	float x = ax - 0.5;
+	float y = ay - 0.5;
+	COLOR.rgb = vec3(0);
+	float radius = size / 4.;
+	float outer_radius = radius;
+	float selection_from = (outer_radius + selection_gap - selection_width / 2.);
+	float selection_to = (outer_radius + selection_gap + selection_width / 2.);
+	float norm_x = clamp(x / size, -1, 1);
+	float height = cos(asin(norm_x));
+	float fy = y;
+	float fx = x;
+	float height2 = cos(abs(fx * 3.14));
+	float base = sqrt(fx*fx + fy*fy) / 3.;
+	float base2 = base * 3.;
+	
+	float n_angle = get_normalised_squere_angle(x, y, TIME);
+	float range_from_border = 0.5 - min(abs(n_angle - 0.5), abs(0.5 - n_angle));
+	float fade = pow(range_from_border * 2., .5);
+	float power = texture(noise, vec2(n_angle * 0.3) + TIME * 0.1).r * fade * 0.4;
+	power = pow(power * 3., 1.) * 0.3;
+//	power = pow(power * 4., 2.) * 0.3;
+	outer_radius += power * 0.02;
+	
+	float value = (texture(noise, UV + TIME * 0.1).r) * 0.01;
+	base += value;
+	COLOR.rgba = vec4(.0);
+	if (base > outer_radius){
+		COLOR.rgba = main_color.rgba;
+		COLOR.a -= clamp(pow(base - outer_radius, 1.) / glow_power, 0., 1.) ;
+
+		if (base > selection_from && base < selection_to){
+			float selection_power = pow(min(base-selection_from, selection_to-base) / selection_width, 2.) * 4.;
+			COLOR = mix(COLOR, selection_color, selection_power);
+		}
+	} else {
+		COLOR.rgba = main_color.rgba;
+		float inner_radius = radius * inner_part;
+		COLOR = lighten(COLOR, (1. - base / inner_radius) * 2.)
+//		if (base < inner_radius ){
+//			COLOR = lighten(COLOR, 0.5)
+////			COLOR.a *= 0.8;
+//		}else{
+//		}
+
+	}
+
+	if (base2 < power){
+		float brightness = power - base2;
+		COLOR = lighten(COLOR, brightness * 10.)
+	}
+//	COLOR.r = power;
+//	COLOR.r = pow(power, 2.);
+//	COLOR.r = pow(power, 2.) - base * 4.;
+//	if (angle < 0.){
+//		COLOR.r = 1.0;
+//	}
+//	if (angle < -1.57){
+//		COLOR.g = 1.0;
+//	}
+//	if (angle > 1.57){
+//		COLOR.b = 1.0;
+//	}
+	
+	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
+}"
+
+[sub_resource type="OpenSimplexNoise" id=7]
+
+[sub_resource type="NoiseTexture" id=9]
+seamless = true
+noise = SubResource( 7 )
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = SubResource( 8 )
+shader_param/main_color = Color( 0.996078, 1, 0.54902, 1 )
+shader_param/selection_color = Color( 0.5, 0.5, 0, 0.6 )
+shader_param/size = 0.1
+shader_param/glow_power = 0.02
+shader_param/selection_width = 0.08
+shader_param/selection_gap = 0.0
+shader_param/noise = SubResource( 9 )
 
 [node name="system" type="Control"]
 anchor_right = 1.0
@@ -42,16 +179,20 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="background" parent="." instance=ExtResource( 7 )]
+
 [node name="system_map" parent="." instance=ExtResource( 5 )]
+
+[node name="universe_map" parent="." instance=ExtResource( 5 )]
 
 [node name="resources_panel" parent="." instance=ExtResource( 1 )]
 margin_bottom = 55.0
 
 [node name="to_starmap" type="Button" parent="."]
 margin_left = 1296.0
-margin_top = 10.0
-margin_right = 1389.0
-margin_bottom = 49.0
+margin_top = 18.0
+margin_right = 1376.0
+margin_bottom = 40.0
 focus_mode = 0
 custom_styles/hover = SubResource( 1 )
 custom_styles/pressed = SubResource( 2 )
@@ -66,10 +207,10 @@ __meta__ = {
 }
 
 [node name="to_science" type="Button" parent="."]
-margin_left = 1198.35
-margin_top = 10.5946
-margin_right = 1286.35
-margin_bottom = 49.5946
+margin_left = 1200.0
+margin_top = 18.0
+margin_right = 1270.0
+margin_bottom = 40.0
 focus_mode = 0
 custom_styles/hover = SubResource( 1 )
 custom_styles/pressed = SubResource( 2 )
@@ -85,6 +226,16 @@ __meta__ = {
 
 [node name="star_map" parent="." instance=ExtResource( 3 )]
 visible = false
+
+[node name="star_map2" type="Node2D" parent="."]
+visible = false
+
+[node name="root" type="Node2D" parent="star_map2"]
+
+[node name="star" type="Sprite" parent="star_map2/root"]
+material = SubResource( 6 )
+position = Vector2( 691.55, 301.228 )
+texture = ExtResource( 6 )
 
 [connection signal="pressed" from="to_starmap" to="." method="_on_to_starmap_pressed"]
 [connection signal="pressed" from="to_science" to="." method="_on_to_starmap_pressed"]

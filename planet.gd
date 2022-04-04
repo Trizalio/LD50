@@ -9,6 +9,7 @@ export var selection: float = 0 setget set_selection
 const anim_duration: float = 0.3
 const anim_trans = Tween.TRANS_SINE
 const anim_ease = Tween.EASE_IN_OUT
+var is_ustar: bool = false
 var sprite: Sprite = null
 
 func set_selection(new_selection: float):
@@ -31,6 +32,12 @@ func prepare_star():
 func prepare_gas_giant():
 	sprite = $planet_sprite
 	_prepare_any()
+	
+func prepare_ustar():
+	is_ustar = true
+	sprite = $ustar_sprite
+	_prepare_any()
+	return self
 	
 
 func _process(delta):

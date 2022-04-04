@@ -31,6 +31,7 @@ Animator="*res://singletones/animator.gd"
 Rand="*res://singletones/rand.gd"
 SceneChanger="*res://singletones/scene_changer.gd"
 Utils="*res://singletones/utils.gd"
+GameState="*res://game_state.gd"
 
 [display]
 
