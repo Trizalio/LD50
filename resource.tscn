@@ -44,26 +44,27 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+text = "RESOURCE"
 
 [node name="outer" type="MarginContainer" parent="."]
-margin_right = 238.0
+margin_right = 258.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 
 [node name="panel" type="Panel" parent="outer"]
-margin_right = 238.0
+margin_right = 258.0
 margin_bottom = 34.0
 custom_styles/panel = SubResource( 1 )
 
 [node name="inner" type="MarginContainer" parent="outer"]
-margin_right = 238.0
+margin_right = 258.0
 margin_bottom = 34.0
 custom_constants/margin_right = 10
 custom_constants/margin_left = 10
 
 [node name="hbox" type="HBoxContainer" parent="outer/inner"]
 margin_left = 10.0
-margin_right = 228.0
+margin_right = 248.0
 margin_bottom = 34.0
 alignment = 1
 
@@ -87,12 +88,11 @@ rect_min_size = Vector2( 100, 0 )
 custom_styles/fg = SubResource( 2 )
 custom_styles/bg = SubResource( 3 )
 custom_fonts/font = ExtResource( 2 )
-max_value = 0.0
 
 [node name="value" type="Label" parent="outer/inner/hbox"]
 margin_left = 188.0
 margin_top = 6.0
-margin_right = 218.0
+margin_right = 238.0
 margin_bottom = 28.0
 custom_fonts/font = ExtResource( 2 )
-text = "0/0"
+text = "0/100"

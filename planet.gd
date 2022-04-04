@@ -11,6 +11,7 @@ const anim_trans = Tween.TRANS_SINE
 const anim_ease = Tween.EASE_IN_OUT
 var is_ustar: bool = false
 var sprite: Sprite = null
+var title: String
 
 func set_selection(new_selection: float):
 	sprite.material.set_shader_param("selection_gap", new_selection)
@@ -18,6 +19,7 @@ func set_selection(new_selection: float):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	title = "planet tau"
 #	$sprite.material = $sprite.material.duplicate()
 	pass # Replace with function body.
 
@@ -28,10 +30,12 @@ func _prepare_any():
 func prepare_star():
 	sprite = $star_sprite
 	_prepare_any()
+	return self
 	
 func prepare_gas_giant():
 	sprite = $planet_sprite
 	_prepare_any()
+	return self
 	
 func prepare_ustar():
 	is_ustar = true

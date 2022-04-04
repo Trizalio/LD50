@@ -30,7 +30,9 @@ func _tween_callback(object, property, tween: Tween, animation_steps: Array,
 		self.remove_child(tween)
 		if destroy:
 #			print("destroy: ", object)
-			object.get_parent().remove_child(object)
+			var parent = object.get_parent()
+			if parent != null:
+				parent.remove_child(object)
 		return
 	var current_step = animation_steps[0]
 	animation_steps.remove(0)
