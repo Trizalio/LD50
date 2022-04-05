@@ -5,9 +5,31 @@ extends Node
 # var a = 2
 # var b = "text"
 var game = null
+var panel = null
 
 func register_game(game):
 	self.game = game
+func register_panel(panel):
+	self.panel = panel
+
+func is_ustar_scannable(ustar):
+	for other in ustars:
+		if other.is_inhibitable and \
+			ustar.position.distance_to(other.position) < other.get_scan_range():
+				return true
+	return false
+
+func is_ustar_reachable(ustar):
+	for other in ustars:
+		if other.is_inhibitable:
+			var distance = ustar.position.distance_to(other.position)
+			if distance < other.get_jump_range():
+				return distance
+	return false
+	
+func move_all_starts_from_center(force):
+	for ustar in ustars:
+		ustar.position *= (1 + force)
 
 func button_pressed(object, action: String):
 	if object == null:
@@ -21,23 +43,61 @@ func button_pressed(object, action: String):
 	else:
 		if action == 'Back':
 			game.recall_system_camera()
+			
+	if object.is_planet:
+		if action == 'Colonise':
+			var distance = is_ustar_reachable(object.owner_ustar)
+			if distance:
+				object.is_inhibitable = true
+				object.owner_ustar.is_inhibitable = true
+				panel.max_materials += 10
+				panel.max_energy += 10
+				panel.cur_population += 10
+				panel.cur_year += distance
+				move_all_starts_from_center(distance / 1000)
+				game.rerender_galaxy()
+				game.ascend_to_universe()
+#			game.recall_system_camera()
 #		else:
 #			game.ascend_to_universe()
 
 func get_actions_for_object(object):
+	var actions = []
 	if object.is_ustar:
-		return ["View", "Back"]
+		if is_ustar_scannable(object):
+			actions += ["View"]
 		
+	if object.is_planet:
+		if not object.is_inhibitable:
+			var distance = is_ustar_reachable(object.owner_ustar)
+			if distance:
+				actions += ["Colonise"]
+			
 #	if object.is_star:
-	return ["Back"]
+	actions += ["Back"]
+	return actions
+	
+			
 
 func get_hint_for_object(object) -> String:
 	var result = ''
-	if object.is_ustar or object.is_star:
+	if object.is_ustar:
+		if is_ustar_reachable(object):
+			result = 'Colonisable star'
+		elif is_ustar_scannable(object):
+			result = 'Viewable star'
+		else:
+			result = 'Star out of scan range'
+			
+		
+	if object.is_star:
 		result = 'Star'
 		
 	if object.is_planet:
-		result = 'Planet'
+		if is_ustar_reachable(object.owner_ustar):
+			result = 'Colonisable planet'
+		else:
+			result = 'Too far too colonise planet'
 		
 	return '[center]' + result + '[/center]'
 
@@ -50,7 +110,21 @@ func get_hint_for_object_action(object, action: String):
 	else:
 		if action == 'Back':
 			return 'Return to the system'
+		
+	if object.is_planet:
+		if action == 'Colonise':
+			var distance = is_ustar_reachable(object.owner_ustar)
+			return 'Colonise system, spend ' + str(int(distance)) + ' years'
 	return ''
+	
+
+func generate_random_position():
+	var angle = Rand.float_in_range(0, PI * 2)
+	var distance = Rand.float_in_range(200, 400)
+	var position = Vector2(distance, distance)
+	position = position.rotated(angle)
+	position.y *= 0.7
+	return position
 	
 onready var PlanetScene = preload("res://planet.tscn")
 func generate_random_planets(ustar):
@@ -60,22 +134,68 @@ func generate_random_planets(ustar):
 	var planets = []
 	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
 		print('generate_random_planets add planet')
-		var planet = PlanetScene.instance()
-		planet.prepare_gas_giant(ustar)
-		var angle = Rand.float_in_range(0, PI * 2)
-		var distance = Rand.float_in_range(200, 400)
-		var position = Vector2(distance, distance)
-		position = position.rotated(angle)
-		print(
-			'generate_random_planets angle:', angle, ", distance: ", distance, 
-			", position: ", position
-		)
-		planet.position = position
-		planet.position.y *= 0.7
-		planets.append(planet)
+		var new_planet = PlanetScene.instance()
+		new_planet.prepare_gas_giant(ustar)
+		var conflict = true
+		while conflict:
+			new_planet.position = generate_random_position()
+			
+			conflict = false
+			for planet in planets:
+				if new_planet.position.distance_to(planet.position) < 100:
+					conflict = true
+					print('conflict')
+					break
+					
+		planets.append(new_planet)
 	print('generate_random_planets generated: ', len(planets))
 	return planets
 	
+func generate_random_squere_position():
+	var x = Rand.float_in_range(-675, 675)
+	var y = Rand.float_in_range(-375, 425)
+	return Vector2(x, y)
+	
+var ustars = []
+func generate_random_stars():
+	print('generate_random_stars')
+	var stars = []
+	var min_range_from_center = 10000
+	var nearest_ustar = null
+	while len(stars) < 50:
+#		print('generate_random_planets add planet')
+		var new_star = PlanetScene.instance()
+		new_star.prepare_ustar()
+		var conflict = true
+		while conflict:
+			new_star.position = generate_random_squere_position()
+			
+			conflict = false
+			for star in stars:
+				if new_star.position.distance_to(star.position) < 75:
+					conflict = true
+#					print('conflict')
+					break
+			
+					
+			if not conflict and new_star.position.length() < min_range_from_center:
+				print(
+					new_star.position, ' len: ', new_star.position.length(),
+					' is less then ', min_range_from_center, ' set nearest to', 
+					new_star
+				)
+				min_range_from_center = new_star.position.length()
+				nearest_ustar = new_star
+					
+		stars.append(new_star)
+	nearest_ustar.is_inhibitable = true
+	print('generate_random_planets generated: ', len(stars))
+	ustars = stars
+	return stars
+
+#func get_ustars():
+#	generate_random_stars()
+
 var ustar_to_planets = {}
 func get_planets_by_ustar(ustar):
 	print('get_planets_by_ustar: ', ustar)
@@ -86,10 +206,10 @@ func get_planets_by_ustar(ustar):
 	
 
 func get_jump_range():
-	return 100
+	return 150
 
 func get_scan_range():
-	return 250
+	return 300
 	
 # Called when the node enters the scene tree for the first time.
 func _ready():

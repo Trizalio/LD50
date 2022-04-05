@@ -18,7 +18,7 @@ margin_bottom = 58.0
 
 [node name="inner" type="MarginContainer" parent="."]
 margin_right = 1400.0
-margin_bottom = 58.0
+margin_bottom = 46.0
 size_flags_vertical = 0
 custom_constants/margin_right = 250
 custom_constants/margin_top = 12
@@ -29,7 +29,7 @@ custom_constants/margin_bottom = 12
 margin_left = 30.0
 margin_top = 12.0
 margin_right = 1150.0
-margin_bottom = 46.0
+margin_bottom = 34.0
 size_flags_horizontal = 3
 alignment = 1
 __meta__ = {
@@ -37,30 +37,30 @@ __meta__ = {
 }
 
 [node name="materials" parent="inner/resources" instance=ExtResource( 1 )]
+visible = false
 margin_right = 435.0
-margin_bottom = 34.0
 text = "MATERIALS"
+cur_value = 100.0
 
 [node name="energy" parent="inner/resources" instance=ExtResource( 1 )]
-margin_left = 439.0
+visible = false
 margin_right = 874.0
-margin_bottom = 34.0
 text = "ENERGY"
+cur_value = 100.0
 
-[node name="bar_value" parent="inner/resources" instance=ExtResource( 3 )]
+[node name="population" parent="inner/resources" instance=ExtResource( 3 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 878.0
-margin_right = 1012.0
-margin_bottom = 34.0
+margin_right = 558.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
 text = "POPULATION"
-cur_value = 6.0
 
-[node name="bar_value2" parent="inner/resources" instance=ExtResource( 3 )]
+[node name="year" parent="inner/resources" instance=ExtResource( 3 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 1016.0
+margin_left = 562.0
 margin_right = 1120.0
-margin_bottom = 34.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
 text = "YEAR"
-cur_value = 2000.0

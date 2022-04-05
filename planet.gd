@@ -6,6 +6,7 @@ signal pressed
 # var a = 2
 # var b = "text"
 export var selection: float = 0 setget set_selection
+export var seed_: Vector2 = Vector2(0, 0) setget set_seed
 const anim_duration: float = 0.3
 const anim_trans = Tween.TRANS_SINE
 const anim_ease = Tween.EASE_IN_OUT
@@ -19,6 +20,10 @@ var is_inhibitable: bool = false
 func set_selection(new_selection: float):
 	sprite.material.set_shader_param("selection_gap", new_selection)
 	selection  = new_selection
+
+func set_seed(new_seed: Vector2):
+	sprite.material.set_shader_param("seed", new_seed)
+	seed_  = new_seed
 
 const FIRST_NAMES = [
 	"ACAMAR", "ACHERNAR", "Achird", "ACRUX", "Acubens", "ADARA", "Adhafera", "Adhil", 
@@ -74,9 +79,10 @@ func generate_star_name() -> String:
 func generate_planet_name(ustar) -> String:
 	return ustar.title + " " + Rand.choice(SECOND_NAMES)
 	
+var start_position = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
+	start_position = position
 #	$sprite.material = $sprite.material.duplicate()
 	pass # Replace with function body.
 	
@@ -95,9 +101,18 @@ func get_scan_range() -> float:
 func _prepare_any():
 	sprite.visible = true
 	sprite.material = sprite.material.duplicate()
+	if is_planet:
+		set_seed(Vector2(Rand.float_in_range(0, 100), Rand.float_in_range(0, 100)))
+		sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+		sprite.material.set_shader_param("size", Rand.float_in_range(0.2, 0.3))
+		sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
+		sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.4, 0.6))
+	
 
+var owner_ustar = null
 func prepare_star(ustar):
 	is_star = true
+	owner_ustar = ustar
 	sprite = $star_sprite
 	title = ustar.title
 	_prepare_any()
@@ -105,6 +120,7 @@ func prepare_star(ustar):
 	
 func prepare_gas_giant(ustar):
 	is_planet = true
+	owner_ustar = ustar
 	sprite = $planet_sprite
 	title = generate_planet_name(ustar)
 	_prepare_any()

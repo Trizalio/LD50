@@ -10,16 +10,12 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="bar_value" type="MarginContainer"]
+[node name="bar_value" type="CenterContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = -1286.0
 margin_bottom = -878.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-text = "RESOURCE"
 
 [node name="outer" type="MarginContainer" parent="."]
 margin_right = 114.0

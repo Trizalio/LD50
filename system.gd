@@ -84,21 +84,34 @@ func ascend_to_universe():
 	universe_map.visible = true
 	universe_map.recall_camera(1)
 
+var ustars = []
+func rerender_galaxy():
+	var universe_map = $universe_map
+	universe_map.load_universe(ustars)
+
+#var ustars = GameState.generate_random_stars()
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	GameState.register_game(self)
 	var universe_map = $universe_map
-	var ustars = [
-		PlanetScene.instance().prepare_ustar(), 
-		PlanetScene.instance().prepare_ustar(),
-		PlanetScene.instance().prepare_ustar(),
-		PlanetScene.instance().prepare_ustar(),
-	]
-	ustars[0].position = Vector2(100, 100)
-	ustars[0].is_inhibitable = true
-	ustars[1].position = Vector2(-150, 70)
-	ustars[2].position = Vector2(-110, -130)
-	ustars[3].position = Vector2(10, -11)
+	ustars = GameState.generate_random_stars()
+#	var ustars = [
+#		PlanetScene.instance().prepare_ustar(), 
+#		PlanetScene.instance().prepare_ustar(),
+#		PlanetScene.instance().prepare_ustar(),
+#		PlanetScene.instance().prepare_ustar(),
+#	]
+#	ustars[0].position = Vector2(100, 100)
+#	ustars[0].is_inhibitable = true
+#	ustars[1].position = Vector2(-150, 70)
+#	ustars[2].position = Vector2(-110, -130)
+#	ustars[3].position = Vector2(10, -11)
+#	ustars[0].position = Vector2(675, 425)
+#	ustars[0].is_inhibitable = true
+#	ustars[1].position = Vector2(-675, -375)
+#	ustars[2].position = Vector2(-110, -130)
+#	ustars[3].position = Vector2(10, -11)
 	universe_map.load_universe(ustars)
 #	pass_stars_to_marks(ustars)
 #

@@ -33,9 +33,11 @@ func _ready():
 	
 func load_universe(stars: Array):
 	print('load_universe: ', stars)
+	clear_planets()
 	for star in stars:
 		add_planet(star)
 	pass_stars_to_marks(stars)
+	
 	
 func load_system(star, planets: Array):
 	print('load_system: ', star, ', planets:', planets)
@@ -141,6 +143,8 @@ func set_info_title(text: String):
 #var texts = []
 func planet_pressed(planet):
 	if current_planet != planet:
+		recall_camera()
+		remove_buttons()
 		var actions = GameState.get_actions_for_object(planet)
 		move_camera_to_planet(planet)
 #		texts += ['some']

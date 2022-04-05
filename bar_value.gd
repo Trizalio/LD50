@@ -1,4 +1,4 @@
-extends MarginContainer
+extends CenterContainer
 tool
 
 export var text: String = "resource" setget set_text
