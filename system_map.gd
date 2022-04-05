@@ -191,15 +191,16 @@ func pack(value: float) -> float:
 func pass_stars_to_marks(ustars):
 	var data = []
 	for star in ustars:
-		data.append(Color(
-			pack(star.position.x), 
-			pack(star.position.y), 
-			pack(star.get_jump_range()), 
-			pack(star.get_scan_range())
-		))
-	print(data)
+		var jump_range = star.get_jump_range()
+		var scan_range = star.get_scan_range()
+		if jump_range > 0 or scan_range > 0:
+			data.append(Color(
+				pack(star.position.x), pack(star.position.y), 
+				pack(jump_range),  pack(scan_range)
+			))
+	print("pass_stars_to_marks: ", data)
 #	data = [Color(0, 0.5, 0, 0)]
-	print(data)
+#	print(data)
 #	data = []
 	var texture = make_texture(data)
 	var marks_sprite = $base/root/marks/sprite

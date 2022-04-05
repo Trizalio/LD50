@@ -55,6 +55,7 @@ margin_right = 558.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 text = "POPULATION"
+cur_value = 10.0
 
 [node name="year" parent="inner/resources" instance=ExtResource( 3 )]
 anchor_right = 0.0
@@ -64,3 +65,4 @@ margin_right = 1120.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 text = "YEAR"
+cur_value = 2000.0

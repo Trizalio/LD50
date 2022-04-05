@@ -70,13 +70,15 @@ void fragment(){
 		vec4 position_jump_and_scan_range = get_position_jump_and_scan_range(i);
 		vec2 position = position_jump_and_scan_range.xy;
 		float jump_range = position_jump_and_scan_range.z;
+		if (jump_range > 0.){
+			float current_jump_range = distance(uv, position + shift) / jump_range;
+			min_jump_range = min(min_jump_range, current_jump_range);
+		}
 		float scan_range = position_jump_and_scan_range.a;
-		float current_jump_range = distance(uv, position + shift) / jump_range;
-		float current_scan_range = distance(uv, position + shift) / scan_range;
-		min_range = min(min_range, distance(uv, position));
-//		min_range = min(min_range, distance(uv, vec2(0.)));
-		min_jump_range = min(min_jump_range, current_jump_range);
-		min_scan_range = min(min_scan_range, current_scan_range);
+		if (scan_range > 0.){
+			float current_scan_range = distance(uv, position + shift) / scan_range;
+			min_scan_range = min(min_scan_range, current_scan_range);
+		}
 	}
 	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color);
 	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color);
