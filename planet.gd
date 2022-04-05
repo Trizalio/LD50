@@ -103,10 +103,6 @@ func _prepare_any():
 	sprite.material = sprite.material.duplicate()
 	if is_planet:
 		set_seed(Vector2(Rand.float_in_range(0, 100), Rand.float_in_range(0, 100)))
-		sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
-		sprite.material.set_shader_param("size", Rand.float_in_range(0.2, 0.3))
-		sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
-		sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.4, 0.6))
 	
 
 var owner_ustar = null
@@ -118,12 +114,28 @@ func prepare_star(ustar):
 	_prepare_any()
 	return self
 	
-func prepare_gas_giant(ustar):
+func _prepare_planet(ustar):
 	is_planet = true
 	owner_ustar = ustar
 	sprite = $planet_sprite
 	title = generate_planet_name(ustar)
 	_prepare_any()
+	return self
+	
+func prepare_dwarf_planet(ustar):
+	_prepare_planet(ustar)
+	return self
+	
+func prepare_earth_like_planet(ustar):
+	_prepare_planet(ustar)
+	return self
+	
+func prepare_gas_giant(ustar):
+	_prepare_planet(ustar)
+	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+	sprite.material.set_shader_param("size", Rand.float_in_range(0.2, 0.3))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
+	sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.4, 0.6))
 	return self
 	
 func prepare_ustar():

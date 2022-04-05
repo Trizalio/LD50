@@ -44,14 +44,17 @@ void fragment(){
 	float selection_from = (outer_radius + selection_gap - selection_width / 2.);
 	float selection_to = (outer_radius + selection_gap + selection_width / 2.);
 	float norm_x = clamp(x / size, -1, 1);
-	float height = cos(asin(norm_x));
+//	float height = cos(asin(norm_x));
 	float fy = y;
 	float fx = x;
-	float height2 = cos(abs(fx * 3.14));
+//	float height2 = cos(abs(fx * 3.14));
 	float base = sqrt(fx*fx + fy*fy) / 3.;
 	
 	float phase = TIME * selection_speed;
-	float elipsic_base = pow(pow(y + sin(phase) * selection_to * 2., 2.) + pow(x, 2.) * 0.1, 0.5) * (2.1 - abs(cos(phase)) * .9);
+	float elipsic_base = pow(
+		pow(y + sin(phase) * selection_to * 2., 2.) + 
+		pow(x, 2.) * 0.1, 0.5
+	) * (2.1 - abs(cos(phase)) * .9);
 	
 	float value = (texture(noise, UV + TIME * 0.1).r) * 0.006;
 	base += value;
@@ -74,7 +77,12 @@ void fragment(){
 	}
 	else {
 //		COLOR.rgba = main_color.rgba;
-		float power = texture(noise, seed + vec2(ax + TIME * rotation_speed, ay * striping - cos(x) * striping * 2.) * .3).r;
+		float noise_x = ax + TIME * rotation_speed;
+		float noise_y = striping * (ay - cos(x / size) * size);
+//		float noise_y = ay * striping - cos(x / size) * striping * 0.5;
+		vec2 noise_uv = vec2(noise_x, noise_y) * .3;
+		noise_uv += seed;
+		float power = texture(noise, noise_uv).r;
 		float npower0 = power - main_and_second_colors_distribution;
 		if (npower0 > 0.){
 			npower0 = npower0 / (1. - main_and_second_colors_distribution);

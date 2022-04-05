@@ -22,7 +22,7 @@ _global_script_class_icons={
 
 config/name="LD50"
 run/main_scene="res://system.tscn"
-config/icon="res://icon.png"
+config/icon="res://resources/images/planet.png"
 
 [autoload]
 
