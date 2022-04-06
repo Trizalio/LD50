@@ -5,6 +5,7 @@ signal pressed
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
+export var size: float = 0.3 setget set_size
 export var selection: float = 0 setget set_selection
 export var seed_: Vector2 = Vector2(0, 0) setget set_seed
 const anim_duration: float = 0.3
@@ -17,9 +18,13 @@ var sprite: Sprite = null
 var title: String
 var is_inhibitable: bool = false
 
+func set_size(new_size: float):
+	size = new_size
+	sprite.material.set_shader_param("size", size)
+
 func set_selection(new_selection: float):
-	sprite.material.set_shader_param("selection_gap", new_selection)
-	selection  = new_selection
+	selection = new_selection
+	sprite.material.set_shader_param("selection_gap", selection)
 
 func set_seed(new_seed: Vector2):
 	sprite.material.set_shader_param("seed", new_seed)
@@ -128,14 +133,14 @@ func prepare_dwarf_planet(ustar):
 	
 func prepare_earth_like_planet(ustar):
 	_prepare_planet(ustar)
+	set_size(Rand.float_in_range(0.2, 0.3))
+	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
+	sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.2, 0.5))
 	return self
 	
 func prepare_gas_giant(ustar):
 	_prepare_planet(ustar)
-	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
-	sprite.material.set_shader_param("size", Rand.float_in_range(0.2, 0.3))
-	sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
-	sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.4, 0.6))
 	return self
 	
 func prepare_ustar():

@@ -135,7 +135,7 @@ func generate_random_planets(ustar):
 	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
 		print('generate_random_planets add planet')
 		var new_planet = PlanetScene.instance()
-		new_planet.prepare_gas_giant(ustar)
+		new_planet.prepare_earth_like_planet(ustar)
 		var conflict = true
 		while conflict:
 			new_planet.position = generate_random_position()
