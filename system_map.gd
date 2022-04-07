@@ -50,6 +50,7 @@ func clear_planets():
 	var planets = $base/root/planets
 	for child in planets.get_children():
 		planets.remove_child(child)
+		child.disconnect("pressed", self, 'planet_pressed')
 	
 func add_planet(planet: Planet):
 	var planets = $base/root/planets
@@ -59,9 +60,11 @@ func add_planet(planet: Planet):
 func remove_buttons():
 	var buttons_node = $buttons
 	for button in buttons_node.get_children():
+		button.disabled = true
 		var target_position = Vector2(button_outer_x, button.rect_position.y)
 		Animator.animate(button, 'rect_position', target_position, zoom_duration, zoom_trans, zoom_ease)
 		Animator.animate(button, 'modulate', Color(1, 1, 1, 0), zoom_duration, zoom_trans, zoom_ease, true)
+		
 	
 const delay_per_button = 0.1
 const x_shift_per_button_per_height = 0.5

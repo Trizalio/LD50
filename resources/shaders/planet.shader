@@ -11,8 +11,6 @@ uniform vec4 atmosphere_color: hint_color = vec4(0., 0., .9, .3);
 uniform vec4 selection_color: hint_color = vec4(0.5, 0.5, .0, .6);
 uniform float selection_width = 0.08;
 uniform float selection_gap = 0.0;
-uniform float selection_speed = 0.4;
-//uniform float selection_power = 1.0;
 uniform float rotation_speed = 0.1;
 uniform vec2 seed = vec2(0.);
 uniform float size = 0.4;
@@ -60,11 +58,6 @@ void fragment(){
 //	float height2 = cos(abs(fx * 3.14));
 	float base = sqrt(fx*fx + fy*fy) / 3.;
 	
-	float phase = TIME * selection_speed;
-	float elipsic_base = pow(
-		pow(y + sin(phase) * selection_to * 2., 2.) + 
-		pow(x, 2.) * 0.1, 0.5
-	) * (2.1 - abs(cos(phase)) * .9);
 	
 	float value = (texture(noise, UV + TIME * 0.1).r) * 0.006;
 	base += value;
@@ -74,11 +67,6 @@ void fragment(){
 		atmosphere.a -= clamp(pow(base - outer_radius, 3.) * 50000., 0., 1.) ;
 		COLOR = atmosphere;
 			
-//		if (elipsic_base > selection_from && elipsic_base < selection_to){
-//			float selection_power = 1.;
-//			COLOR = mix(COLOR, selection_color, selection_power);
-////			COLOR.rgba = selection_color;
-//		}
 
 		if (base > selection_from && base < selection_to){
 			float selection_power = pow(min(base-selection_from, selection_to-base) / selection_width, 2.) * 4.;
@@ -143,29 +131,5 @@ void fragment(){
 		COLOR = darken(COLOR, (0.5 - power_) * 0.5);
 	}
 	COLOR.rgb = mix(COLOR.rgb, atmosphere.rgb, atmosphere.a);
-////
-//	if (base > selection_from && base < selection_to){
-////		COLOR.rgb = mix(COLOR.rgb, second_color.rgb, second_color.a);
-////		COLOR.rgb = vec3(1.);
-//		COLOR = mix(COLOR, selection_color, selection_power);
-////		COLOR.rgba = selection_color * selection_power;
-//	}
-////	float elipsic_base = pow(pow(abs(y), 2.) + pow(abs(x), 2.) * .116, 0.5) * 2.;
-//	float y_power = .0001;
-//	float x_power = 1.;
-//	float scale = 1. / pow((x_power + y_power) / 2., 0.5);
-//	float elipsic_base2 = pow(pow(y, 2.) * y_power + pow(x, 2.) * x_power, 0.5) * scale / 3. * scale ;
-////	float elipsic_base2 = pow(pow(y + phase * selection_to * 2.5, 2.) + pow(x, 2.) * 0.1, 0.5) * (4.1 - abs(cos(TIME)) * 3.0);
-//
-//	if (elipsic_base2 > selection_from && elipsic_base2 < selection_to){
-//		COLOR.rgba = selection_color;
-//	}
-//	if (y + sin(phase) * selection_to * 2. > 0.){
-//	float selection_power = 1.;
-//	if (y + sin(phase) * selection_to * 2. > 0. && elipsic_base > selection_from && elipsic_base < selection_to){
-//		COLOR = mix(COLOR, selection_color, selection_power);
-////		COLOR.rgba = selection_color * selection_power;
-//	}
-//
 	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
 }

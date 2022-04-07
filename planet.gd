@@ -16,11 +16,33 @@ var is_star: bool = false
 var is_planet: bool = false
 var sprite: Sprite = null
 var title: String
-var is_inhibitable: bool = false
+var is_inhibitable: bool = false setget set_is_inhibitable
+const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
+
+func set_is_inhibitable(new_is_inhibitable):
+	is_inhibitable = new_is_inhibitable
+	var ustar_name = $ustar_labels/center/name
+	var color = gray_color
+	if is_inhibitable:
+		color = Color.white
+	ustar_name.add_color_override("font_color", color)
 
 func set_size(new_size: float):
 	size = new_size
 	sprite.material.set_shader_param("size", size)
+	var button = $button
+	button.rect_size = sprite.texture.get_size() * sprite.scale * size * 2
+	button.rect_position = -button.rect_size / 2
+	var ustar_labels = $ustar_labels
+	var ustar_name = $ustar_labels/center/name
+	var scale = ustar_labels.rect_scale
+	ustar_labels.rect_size = button.rect_size + Vector2(0, ustar_name.rect_size.y) * scale
+	print(ustar_name.rect_size.x)
+#	Artanis
+	ustar_labels.rect_size.x = max(ustar_labels.rect_size.x, 1 *ustar_name.rect_size.x * scale.x)
+#	ustar_labels.rect_size.x = max(ustar_labels.rect_size.x, 1 *ustar_name.rect_size.x * scale.x)
+	ustar_labels.rect_size /= scale
+	ustar_labels.rect_position = -ustar_labels.rect_size * scale / 2
 
 func set_selection(new_selection: float):
 	selection = new_selection
@@ -102,6 +124,7 @@ func get_scan_range() -> float:
 		return 0.0
 	else:
 		return GameState.get_scan_range()
+		
 
 func _prepare_any():
 	sprite.visible = true
@@ -117,6 +140,7 @@ func prepare_star(ustar):
 	sprite = $star_sprite
 	title = ustar.title
 	_prepare_any()
+	set_size(Rand.float_in_range(0.3, 0.4))
 	return self
 	
 func _prepare_planet(ustar):
@@ -146,8 +170,11 @@ func prepare_gas_giant(ustar):
 func prepare_ustar():
 	is_ustar = true
 	title = generate_star_name()
+	$ustar_labels/center/name.text = title
 	sprite = $ustar_sprite
 	_prepare_any()
+	set_size(Rand.float_in_range(0.3, 0.4))
+	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
 	return self
 	
 
