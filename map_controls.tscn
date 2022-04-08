@@ -133,3 +133,12 @@ margin_top = 768.0
 margin_right = 1400.0
 margin_bottom = 854.0
 custom_styles/panel = SubResource( 1 )
+
+[connection signal="mouse_entered" from="top" to="." method="_on_mouse_entered" binds= [ Vector2( 0, -1 ) ]]
+[connection signal="mouse_exited" from="top" to="." method="_on_mouse_exited"]
+[connection signal="mouse_entered" from="left" to="." method="_on_mouse_entered" binds= [ Vector2( -1, 0 ) ]]
+[connection signal="mouse_exited" from="left" to="." method="_on_mouse_exited"]
+[connection signal="mouse_entered" from="right" to="." method="_on_mouse_entered" binds= [ Vector2( 1, 0 ) ]]
+[connection signal="mouse_exited" from="right" to="." method="_on_mouse_exited"]
+[connection signal="mouse_entered" from="bot" to="." method="_on_mouse_entered" binds= [ Vector2( 0, 1 ) ]]
+[connection signal="mouse_exited" from="bot" to="." method="_on_mouse_exited"]

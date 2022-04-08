@@ -1,5 +1,7 @@
 extends GridContainer
 
+signal move(direction)
+
 var should_be_hidden: bool = false
 const zoom_trans = Tween.TRANS_SINE
 const zoom_ease = Tween.EASE_IN_OUT
@@ -17,3 +19,9 @@ func show_(duration: float, zoom_trans = Tween.TRANS_SINE, zoom_ease = Tween.EAS
 	should_be_hidden = false
 	Animator.animate(self, 'modulate', Color.white, duration, zoom_trans, zoom_ease)
 	self.visible = true
+	
+func _on_mouse_exited():
+	self.emit_signal('move', Vector2())
+
+func _on_mouse_entered(direction: Vector2):
+	self.emit_signal('move', direction)

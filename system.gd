@@ -86,7 +86,7 @@ var ustars = []
 func rerender_galaxy():
 	var universe_map = $universe_map
 	universe_map.load_universe(ustars)
-	
+
 onready var map_controls = $vbox/map_controls
 onready var universe_map = $universe_map
 func hide_map_controls(duration: float = -1):
@@ -107,15 +107,25 @@ func on_universe_unzoom():
 	print('on_universe_unzoom')
 	show_map_controls()
 
+
+
 func _ready():
 	GameState.register_game(self)
 #	var universe_map = $universe_map
 	universe_map.connect("zoom", self, "on_universe_zoom")
 	universe_map.connect("unzoom", self, "on_universe_unzoom")
+	map_controls.connect("move", self, "on_map_contols_move")
 	ustars = GameState.generate_random_ustars()
 	
 	universe_map.load_universe(ustars)
+
+onready var move_direction: Vector2 = Vector2()
+func on_map_contols_move(direction: Vector2):
+	move_direction = -direction * 100
 	
+func _process(delta):
+	if move_direction:
+		universe_map.position += delta * move_direction
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()

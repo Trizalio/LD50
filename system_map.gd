@@ -68,6 +68,7 @@ const delay_per_button = 0.1
 const x_shift_per_button_per_height = 0.5
 func add_buttons(button_texts: Array):
 	var buttons_node = $buttons
+	buttons_node.rect_position = Vector2(1000, 490) - self.position
 	var height_per_button = 170 - len(button_texts) * 10
 	var start_height: float = -height_per_button * len(button_texts) / 2.0
 	var curve_center: float = len(button_texts) / 2.0 - 0.5
@@ -91,9 +92,6 @@ func add_buttons(button_texts: Array):
 func button_pressed(text: String):
 	GameState.button_pressed(current_planet, text)
 	remove_buttons()
-#	print(text)
-#	planet_pressed(current_planet)
-#	zoom_camera(0.0001)
 
 func show_object_hint():
 	var description_node = $info/description
@@ -127,7 +125,7 @@ func show_action_hint(button: Button):
 func zoom_camera(zoom: float, point: Vector2 = Vector2(0, 0), duration = null):
 	if duration == null:
 		duration = zoom_duration
-	
+#	point -= self.position
 	var root = $base/root
 	if duration == 0:
 		root.position = point
@@ -148,6 +146,7 @@ func set_info_title(text: String):
 func planet_pressed(planet):
 	if current_planet != planet:
 #		recall_camera()
+
 		remove_buttons()
 		var actions = GameState.get_actions_for_object(planet)
 		move_camera_to_planet(planet)
@@ -165,7 +164,7 @@ func move_camera_to_planet(planet, target_zoom_scale = null):
 		target_zoom_scale = zoom_scale
 	current_planet = planet
 	var camera_center_position = zoom_shift2 - planet.position * target_zoom_scale
-	zoom_camera(target_zoom_scale, camera_center_position)
+	zoom_camera(target_zoom_scale, camera_center_position  - self.position)
 	set_info_title(planet.title)
 	show_object_hint()
 	
