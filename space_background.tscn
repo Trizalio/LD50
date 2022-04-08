@@ -92,22 +92,16 @@ shader_param/noise = SubResource( 9 )
 
 [node name="background_black" type="Sprite" parent="."]
 material = SubResource( 2 )
-position = Vector2( 0, -251.587 )
-scale = Vector2( 21.875, 21.875 )
+scale = Vector2( 22, 22 )
 texture = ExtResource( 1 )
-centered = false
 
 [node name="background_stars" type="Sprite" parent="."]
 material = SubResource( 6 )
-position = Vector2( 0, -251.587 )
-scale = Vector2( 21.875, 21.875 )
+scale = Vector2( 22, 22 )
 texture = ExtResource( 1 )
-centered = false
 
 [node name="background_glow_white" type="Sprite" parent="."]
 modulate = Color( 1, 1, 1, 0.196078 )
 material = SubResource( 10 )
-position = Vector2( -6, -251.587 )
-scale = Vector2( 21.875, 21.875 )
+scale = Vector2( 22, 22 )
 texture = ExtResource( 1 )
-centered = false

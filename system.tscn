@@ -1,10 +1,21 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://resources_panel.tscn" type="PackedScene" id=1]
 [ext_resource path="res://system.gd" type="Script" id=2]
+[ext_resource path="res://resources/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf" type="DynamicFontData" id=3]
 [ext_resource path="res://resources/dynamic_fonts/main.tres" type="DynamicFont" id=4]
 [ext_resource path="res://system_map.tscn" type="PackedScene" id=5]
 [ext_resource path="res://space_background.tscn" type="PackedScene" id=7]
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.6, 0.6, 0.6, 0.0784314 )
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.6, 0.6, 0.6, 0.196078 )
+
+[sub_resource type="DynamicFont" id=5]
+size = 64
+font_data = ExtResource( 3 )
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.282353, 0.298039, 0.360784, 1 )
@@ -59,13 +70,143 @@ __meta__ = {
 }
 
 [node name="background" parent="." instance=ExtResource( 7 )]
+position = Vector2( 700, 450 )
 
 [node name="system_map" parent="." instance=ExtResource( 5 )]
 
 [node name="universe_map" parent="." instance=ExtResource( 5 )]
 
-[node name="resources_panel" parent="." instance=ExtResource( 1 )]
-margin_bottom = 55.0
+[node name="vbox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_constants/separation = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="resources_panel" parent="vbox" instance=ExtResource( 1 )]
+size_flags_horizontal = 3
+
+[node name="map_controls" type="GridContainer" parent="vbox"]
+margin_top = 46.0
+margin_right = 1400.0
+margin_bottom = 900.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/vseparation = 0
+custom_constants/hseparation = 0
+columns = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="corner_lt" type="Panel" parent="vbox/map_controls"]
+margin_right = 100.0
+margin_bottom = 86.0
+custom_styles/panel = SubResource( 6 )
+
+[node name="top" type="Button" parent="vbox/map_controls"]
+margin_left = 100.0
+margin_right = 1300.0
+margin_bottom = 86.0
+rect_min_size = Vector2( 100, 0 )
+focus_mode = 0
+size_flags_horizontal = 3
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 6 )
+custom_styles/normal = SubResource( 6 )
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 1, 1, 1, 0.392157 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 0.784314 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 0.784314 )
+button_mask = 0
+enabled_focus_mode = 0
+text = "^"
+
+[node name="cornet_rt" type="Panel" parent="vbox/map_controls"]
+margin_left = 1300.0
+margin_right = 1400.0
+margin_bottom = 86.0
+custom_styles/panel = SubResource( 6 )
+
+[node name="left" type="Button" parent="vbox/map_controls"]
+margin_top = 86.0
+margin_right = 100.0
+margin_bottom = 768.0
+rect_min_size = Vector2( 100, 0 )
+focus_mode = 0
+size_flags_vertical = 3
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 6 )
+custom_styles/normal = SubResource( 6 )
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 1, 1, 1, 0.392157 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 0.784314 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 0.784314 )
+button_mask = 0
+enabled_focus_mode = 0
+text = "<"
+
+[node name="center" type="MarginContainer" parent="vbox/map_controls"]
+margin_left = 100.0
+margin_top = 86.0
+margin_right = 1300.0
+margin_bottom = 768.0
+mouse_filter = 2
+size_flags_vertical = 3
+
+[node name="right" type="Button" parent="vbox/map_controls"]
+margin_left = 1300.0
+margin_top = 86.0
+margin_right = 1400.0
+margin_bottom = 768.0
+rect_min_size = Vector2( 100, 0 )
+focus_mode = 0
+size_flags_vertical = 3
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 6 )
+custom_styles/normal = SubResource( 6 )
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 1, 1, 1, 0.392157 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 0.784314 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 0.784314 )
+button_mask = 0
+enabled_focus_mode = 0
+text = ">"
+
+[node name="corner_lb" type="Panel" parent="vbox/map_controls"]
+margin_top = 768.0
+margin_right = 100.0
+margin_bottom = 854.0
+custom_styles/panel = SubResource( 6 )
+
+[node name="bot" type="Button" parent="vbox/map_controls"]
+margin_left = 100.0
+margin_top = 768.0
+margin_right = 1300.0
+margin_bottom = 854.0
+rect_min_size = Vector2( 100, 0 )
+focus_mode = 0
+size_flags_horizontal = 3
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 6 )
+custom_styles/normal = SubResource( 6 )
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 1, 1, 1, 0.392157 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 0.784314 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 0.784314 )
+button_mask = 0
+enabled_focus_mode = 0
+text = "v"
+
+[node name="corner_rb" type="Panel" parent="vbox/map_controls"]
+margin_left = 1300.0
+margin_top = 768.0
+margin_right = 1400.0
+margin_bottom = 854.0
+custom_styles/panel = SubResource( 6 )
 
 [node name="to_science" type="Button" parent="."]
 margin_left = 1200.0

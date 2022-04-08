@@ -6,7 +6,8 @@
 
 [node name="resources_panel" type="MarginContainer"]
 margin_right = 1400.0
-margin_bottom = 58.0
+margin_bottom = 46.0
+rect_min_size = Vector2( 0, 46 )
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -14,7 +15,7 @@ __meta__ = {
 
 [node name="panel" type="Panel" parent="."]
 margin_right = 1400.0
-margin_bottom = 58.0
+margin_bottom = 46.0
 
 [node name="inner" type="MarginContainer" parent="."]
 margin_right = 1400.0

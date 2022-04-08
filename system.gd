@@ -15,10 +15,8 @@ func recall_system_camera():
 	$system_map.recall_camera()
 	
 func set_universe_invisible():
-	print('set_universe_invisible')
 	var universe_map = $universe_map
 	if universe_map.current_planet != null:
-		print('set_universe_invisible do')
 		universe_map.visible = false
 	
 
@@ -89,13 +87,35 @@ func rerender_galaxy():
 	var universe_map = $universe_map
 	universe_map.load_universe(ustars)
 
-#var ustars = GameState.generate_random_stars()
 
+func set_map_controls_invisible():
+	print('set_map_controls_invisible')
+	if universe_map.current_planet != null:
+		print('set_map_controls_invisible do')
+		map_controls.visible = false
+	
+#var ustars = GameState.generate_random_stars()
+onready var map_controls = $vbox/map_controls
+onready var universe_map = $universe_map
+func on_universe_zoom():
+	print('on_universe_zoom')
+	var duration = universe_map.zoom_duration / 2
+	universe_map.animate(map_controls, 'modulate', TRANSPARENT,  duration)
+	get_tree().create_timer(duration).connect("timeout", self, "set_map_controls_invisible")
+#	map_controls.visible = false
+	
+func on_universe_unzoom():
+	print('on_universe_unzoom')
+	universe_map.animate(map_controls, 'modulate', OPAQUE)
+	map_controls.visible = true
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	
 	GameState.register_game(self)
-	var universe_map = $universe_map
-	ustars = GameState.generate_random_stars()
+#	var universe_map = $universe_map
+	universe_map.connect("zoom", self, "on_universe_zoom")
+	universe_map.connect("unzoom", self, "on_universe_unzoom")
+	ustars = GameState.generate_random_ustars()
 #	var ustars = [
 #		PlanetScene.instance().prepare_ustar(), 
 #		PlanetScene.instance().prepare_ustar(),

@@ -1,9 +1,7 @@
 extends Node2D
 
-#var Planet = preload('res://planet.gd')
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+signal zoom
+signal unzoom
 var PlanetButton = preload('res://planet_button.tscn')
 
 #const zoom_zero_shift: Vector2 = Vector2(0, 0)
@@ -81,7 +79,7 @@ func add_buttons(button_texts: Array):
 		new_button.rect_position.y = start_height + height_per_button * i
 		new_button.rect_position.x = button_outer_x
 		new_button.connect("pressed", self, 'button_pressed', [text])
-		new_button.connect("mouse_entered", self, 'show_action_hint', [text])
+		new_button.connect("mouse_entered", self, 'show_action_hint', [new_button])
 		new_button.connect("mouse_exited", self, 'show_object_hint')
 		buttons_node.add_child(new_button)
 		var target_x = -x_shift_per_button_per_height * abs(i - curve_center) * height_per_button
@@ -107,7 +105,10 @@ func show_object_hint():
 		description_node.bbcode_text = description
 	animate(description_node, 'modulate', color)
 		
-func show_action_hint(action: String):
+func show_action_hint(button: Button):
+	if button.disabled:
+		return
+	var action = button.text
 	var description_node = $info/description
 	var description = GameState.get_hint_for_object_action(current_planet, action)
 	description_node.bbcode_text = description
@@ -146,7 +147,7 @@ func set_info_title(text: String):
 #var texts = []
 func planet_pressed(planet):
 	if current_planet != planet:
-		recall_camera()
+#		recall_camera()
 		remove_buttons()
 		var actions = GameState.get_actions_for_object(planet)
 		move_camera_to_planet(planet)
@@ -158,6 +159,8 @@ func planet_pressed(planet):
 		remove_buttons()
 	
 func move_camera_to_planet(planet, target_zoom_scale = null):
+	
+	emit_signal('zoom')
 	if target_zoom_scale == null:
 		target_zoom_scale = zoom_scale
 	current_planet = planet
@@ -167,6 +170,7 @@ func move_camera_to_planet(planet, target_zoom_scale = null):
 	show_object_hint()
 	
 func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = null):
+	emit_signal('unzoom')
 	current_planet = null
 	zoom_camera(zoom, point, duration)
 	remove_buttons()

@@ -157,7 +157,8 @@ func generate_random_squere_position():
 	return Vector2(x, y)
 	
 var ustars = []
-func generate_random_stars():
+var vector
+func generate_random_ustars():
 	print('generate_random_stars')
 	var stars = []
 	var min_range_from_center = 10000
