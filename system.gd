@@ -86,71 +86,36 @@ var ustars = []
 func rerender_galaxy():
 	var universe_map = $universe_map
 	universe_map.load_universe(ustars)
-
-
-func set_map_controls_invisible():
-	print('set_map_controls_invisible')
-	if universe_map.current_planet != null:
-		print('set_map_controls_invisible do')
-		map_controls.visible = false
 	
-#var ustars = GameState.generate_random_stars()
 onready var map_controls = $vbox/map_controls
 onready var universe_map = $universe_map
+func hide_map_controls(duration: float = -1):
+	if duration < 0:
+		duration = universe_map.zoom_duration / 2
+	map_controls.hide_(duration)
+
+func show_map_controls(duration: float = -1):
+	if duration < 0:
+		duration = universe_map.zoom_duration
+	map_controls.show_(duration)
+		
 func on_universe_zoom():
 	print('on_universe_zoom')
-	var duration = universe_map.zoom_duration / 2
-	universe_map.animate(map_controls, 'modulate', TRANSPARENT,  duration)
-	get_tree().create_timer(duration).connect("timeout", self, "set_map_controls_invisible")
-#	map_controls.visible = false
+	hide_map_controls()
 	
 func on_universe_unzoom():
 	print('on_universe_unzoom')
-	universe_map.animate(map_controls, 'modulate', OPAQUE)
-	map_controls.visible = true
-# Called when the node enters the scene tree for the first time.
+	show_map_controls()
+
 func _ready():
-	
 	GameState.register_game(self)
 #	var universe_map = $universe_map
 	universe_map.connect("zoom", self, "on_universe_zoom")
 	universe_map.connect("unzoom", self, "on_universe_unzoom")
 	ustars = GameState.generate_random_ustars()
-#	var ustars = [
-#		PlanetScene.instance().prepare_ustar(), 
-#		PlanetScene.instance().prepare_ustar(),
-#		PlanetScene.instance().prepare_ustar(),
-#		PlanetScene.instance().prepare_ustar(),
-#	]
-#	ustars[0].position = Vector2(100, 100)
-#	ustars[0].is_inhibitable = true
-#	ustars[1].position = Vector2(-150, 70)
-#	ustars[2].position = Vector2(-110, -130)
-#	ustars[3].position = Vector2(10, -11)
-#	ustars[0].position = Vector2(675, 425)
-#	ustars[0].is_inhibitable = true
-#	ustars[1].position = Vector2(-675, -375)
-#	ustars[2].position = Vector2(-110, -130)
-#	ustars[3].position = Vector2(10, -11)
+	
 	universe_map.load_universe(ustars)
-#	pass_stars_to_marks(ustars)
-#
-#	var system_map = $system_map
-#	system_map.modulate = TRANSPARENT
-#	system_map.zoom_camera(0.0001)
-#	var planet = PlanetScene.instance()
-#	planet.prepare_gas_giant(ustars[0])
-#	planet.position = Vector2(100, 300)
-#	var star = PlanetScene.instance()
-#	star.prepare_star(ustars[0])
-#	system_map.load_system(star, [planet])
-#	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
+	
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()
