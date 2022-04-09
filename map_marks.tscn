@@ -1,0 +1,132 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+[ext_resource path="res://map_marks.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+uniform sampler2D star_positions;
+uniform int stars_amount;
+uniform vec2 shift = vec2(0.);
+uniform float scale = 1.0;
+uniform float first_zone_range = 0.3;
+uniform float second_zone_range = 0.6;
+uniform float lighten_power = .1;
+uniform float border_width = .05;
+uniform float border_lighten_power = .1;
+uniform vec4 first_zone_color: hint_color = vec4(0., 0., 1., .01);
+uniform vec4 second_zone_color: hint_color = vec4(0., 1., .3, .01);
+uniform float cell_size = 0.1;
+uniform float cell_width = 0.005;
+uniform vec4 cell_color: hint_color = vec4(0., 0., .5, .1);
+
+vec4 lighten(vec4 color, float power){
+	vec4 missing_color = vec4(1.) - color;
+	vec4 result = color + missing_color * power;
+	return result;
+}
+vec4 mix_colors(vec4 first, vec4 second){
+	vec4 result = first * (1. - second.a) + second;
+	return result;
+}
+
+vec4 get_position_jump_and_scan_range(int star_index){
+    vec4 tex = texelFetch(star_positions, ivec2(star_index, 0), 0);
+	vec4 result = (tex - vec4(0.5)) * 2.0;
+	return result;
+}
+
+vec4 get_color_for_zone(float range, float zone_range, vec4 zone_color){
+	vec4 result = vec4(0);
+	if (range < zone_range){
+		float d_range = zone_range - range;
+		result = zone_color;
+		result = lighten(result, d_range * lighten_power);
+		if (d_range < zone_range * border_width){
+			result = lighten(result, border_lighten_power);
+		}
+	}
+	return result;
+}
+vec4 get_color_for_zone2(float range, vec4 zone_color){
+	vec4 result = vec4(0);
+	if (range < 1.){
+		float d_range = 1. - range;
+		result = zone_color;
+		result = lighten(result, d_range * lighten_power);
+		if (d_range < 1. * border_width){
+			result = lighten(result, border_lighten_power);
+		}
+	}
+	return result;
+}
+
+void fragment(){
+	COLOR = vec4(0.);
+
+	vec2 uv = (UV - vec2(0.5)) * 2. - shift;
+	COLOR = vec4(0.);
+	float min_range = 2.;
+	float min_jump_range = 2.;
+	float min_scan_range = 2.;
+ 	for(int i = 0; i < stars_amount; ++i){
+		vec4 position_jump_and_scan_range = get_position_jump_and_scan_range(i);
+		vec2 position = position_jump_and_scan_range.xy;
+		float jump_range = position_jump_and_scan_range.z;
+		if (jump_range > 0.){
+			float current_jump_range = distance(uv, position) / jump_range;
+			min_jump_range = min(min_jump_range, current_jump_range);
+		}
+		float scan_range = position_jump_and_scan_range.a;
+		if (scan_range > 0.){
+			float current_scan_range = distance(uv, position) / scan_range;
+			min_scan_range = min(min_scan_range, current_scan_range);
+		}
+	}
+	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color);
+	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color);
+	COLOR = mix_colors(second_zone, first_zone);
+//	COLOR = mix_colors(first_zone, second_zone);
+//	if (min_range < first_zone_range){
+//		float d_range = first_zone_range - min_range;
+//		COLOR = first_zone;
+//		COLOR = lighten(COLOR, d_range * lighten_power);
+//		if (d_range < first_zone_range * border_width){
+//			COLOR = lighten(COLOR, border_lighten_power);
+//		}
+//	}
+
+	vec2 cell_uv = mod (uv, cell_size);
+	if (cell_width > min(cell_uv.x, cell_uv.y)){
+		float power = max(min(cell_uv.x, cell_width - cell_uv.x), min(cell_uv.y, cell_width - cell_uv.y));
+//		COLOR = cell_color;
+		COLOR = mix(COLOR, cell_color, power / cell_width);
+//		COLOR.a = power / cell_width;
+	}
+
+	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/stars_amount = null
+shader_param/shift = Vector2( 0, 0 )
+shader_param/scale = 1.0
+shader_param/first_zone_range = 0.3
+shader_param/second_zone_range = 0.6
+shader_param/lighten_power = 0.1
+shader_param/border_width = 0.05
+shader_param/border_lighten_power = 0.1
+shader_param/first_zone_color = Color( 0, 0, 1, 0.01 )
+shader_param/second_zone_color = Color( 0, 1, 0.3, 0.01 )
+shader_param/cell_size = 0.1
+shader_param/cell_width = 0.005
+shader_param/cell_color = Color( 0.992157, 1, 0, 0.611765 )
+
+[node name="map_marks" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="sprite" type="Sprite" parent="."]
+material = SubResource( 2 )
+scale = Vector2( 22, 22 )
+texture = ExtResource( 1 )

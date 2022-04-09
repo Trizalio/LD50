@@ -21,6 +21,7 @@ func animate(object: Object, property: NodePath, final_val, duration: float = -1
 		duration = zoom_duration
 	Animator.animate(object, property, final_val, duration, zoom_trans, zoom_ease)
 
+onready var marks = $base/root/marks
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var marks_sprite = $base/root/marks/sprite
@@ -29,12 +30,15 @@ func _ready():
 #	add_planet(planet)
 	pass # Replace with function body.
 	
-func load_universe(stars: Array):
-	print('load_universe: ', stars)
+func load_universe(ustars: Array):
+	print('load_universe: ', ustars)
 	clear_planets()
-	for star in stars:
+	for star in ustars:
 		add_planet(star)
-	pass_stars_to_marks(stars)
+	
+	marks.visible = true
+	marks.pass_stars_to_marks(ustars)
+#	pass_stars_to_marks(stars)
 	
 	
 func load_system(star, planets: Array):
@@ -178,27 +182,29 @@ func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = n
 
 
 
-
-
-
-const shader_scale = 22 * 64 / 2
-func pack(value: float) -> float:
-	return value / shader_scale / 2 + 0.5
-func pass_stars_to_marks(ustars):
-	var data = []
-	for star in ustars:
-		var jump_range = star.get_jump_range()
-		var scan_range = star.get_scan_range()
-		if jump_range > 0 or scan_range > 0:
-			data.append(Color(
-				pack(star.position.x), pack(star.position.y), 
-				pack(jump_range),  pack(scan_range)
-			))
-	print("pass_stars_to_marks: ", data)
-#	data = [Color(0, 0.5, 0, 0)]
-#	print(data)
-#	data = []
-	var texture = ShaderTools.make_texture(data)
-	var marks_sprite = $base/root/marks/sprite
-	marks_sprite.material.set_shader_param("star_positions", texture)
-	marks_sprite.material.set_shader_param("stars_amount", len(data))
+func _process(delta):
+	marks.shift = self.position
+	marks.position = -self.position
+#
+#
+#const shader_scale = 22 * 64 / 2
+#func pack(value: float) -> float:
+#	return value / shader_scale / 2 + 0.5
+#func pass_stars_to_marks(ustars):
+#	var data = []
+#	for star in ustars:
+#		var jump_range = star.get_jump_range()
+#		var scan_range = star.get_scan_range()
+#		if jump_range > 0 or scan_range > 0:
+#			data.append(Color(
+#				pack(star.position.x), pack(star.position.y), 
+#				pack(jump_range),  pack(scan_range)
+#			))
+#	print("pass_stars_to_marks: ", data)
+##	data = [Color(0, 0.5, 0, 0)]
+##	print(data)
+##	data = []
+#	var texture = ShaderTools.make_texture(data)
+#	var marks_sprite = $base/root/marks/sprite
+#	marks_sprite.material.set_shader_param("star_positions", texture)
+#	marks_sprite.material.set_shader_param("stars_amount", len(data))
