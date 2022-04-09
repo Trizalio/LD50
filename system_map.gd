@@ -180,16 +180,6 @@ func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = n
 
 
 
-func make_texture(colors): # vectors is array of Color objects
-	var img = Image.new()
-	img.create(len(colors), 1, false, Image.FORMAT_RGBAF)
-	img.lock()
-	for i in range(len(colors)):
-		img.set_pixel(i, 0, colors[i])
-	img.unlock()
-	var tex = ImageTexture.new()
-	tex.create_from_image(img)
-	return tex
 
 const shader_scale = 22 * 64 / 2
 func pack(value: float) -> float:
@@ -208,7 +198,7 @@ func pass_stars_to_marks(ustars):
 #	data = [Color(0, 0.5, 0, 0)]
 #	print(data)
 #	data = []
-	var texture = make_texture(data)
+	var texture = ShaderTools.make_texture(data)
 	var marks_sprite = $base/root/marks/sprite
 	marks_sprite.material.set_shader_param("star_positions", texture)
 	marks_sprite.material.set_shader_param("stars_amount", len(data))

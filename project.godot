@@ -32,6 +32,7 @@ Rand="*res://singletones/rand.gd"
 SceneChanger="*res://singletones/scene_changer.gd"
 Utils="*res://singletones/utils.gd"
 GameState="*res://game_state.gd"
+ShaderTools="*res://singletones/shader_tools.gd"
 
 [display]
 
