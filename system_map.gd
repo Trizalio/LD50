@@ -6,9 +6,9 @@ var PlanetButton = preload('res://planet_button.tscn')
 
 #const zoom_zero_shift: Vector2 = Vector2(0, 0)
 const zoom_zero_shift: Vector2 = Vector2(700, 450)
-const zoom_shift: Vector2 = Vector2(500, 475)
-const zoom_shift2: Vector2 = Vector2(-200, 25)
 #const zoom_shift: Vector2 = Vector2(500, 475)
+const zoom_shift: Vector2 = Vector2(-200, 25)
+const zoom_shift2: Vector2 = Vector2(500, 475)
 const zoom_scale: float = 4.0
 const zoom_duration: float = 0.8
 const zoom_trans = Tween.TRANS_SINE
@@ -182,8 +182,9 @@ func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = n
 
 
 func _process(delta):
-	marks.shift = self.position
-	marks.position = -self.position
+	
+	marks.shift = self.position - Vector2(700, 450)
+	marks.position = -self.position + Vector2(700, 450)
 #
 #
 #const shader_scale = 22 * 64 / 2

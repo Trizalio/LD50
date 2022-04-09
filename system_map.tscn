@@ -16,7 +16,6 @@ font_data = ExtResource( 6 )
 script = ExtResource( 5 )
 
 [node name="base" type="Node2D" parent="."]
-position = Vector2( 700, 450 )
 
 [node name="root" type="Node2D" parent="base"]
 

@@ -64,9 +64,10 @@ __meta__ = {
 position = Vector2( 700, 450 )
 
 [node name="system_map" parent="." instance=ExtResource( 5 )]
+position = Vector2( 700, 450 )
 
 [node name="universe_map" parent="." instance=ExtResource( 5 )]
-scale = Vector2( 0.5, 0.5 )
+position = Vector2( 700, 450 )
 
 [node name="map_marks" parent="." instance=ExtResource( 6 )]
 visible = false

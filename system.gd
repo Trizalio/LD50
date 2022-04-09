@@ -52,7 +52,9 @@ func descend_into_star(ustar):
 #		system_map, 'modulate', OPAQUE, universe_map.zoom_duration, 
 #		universe_map.zoom_trans, universe_map.zoom_ease
 #	)
-	system_map.zoom_camera(SYSTEM_DEFAULT_ZOOM, system_map.zoom_shift2, 0)
+#	system_map.zoom_camera(SYSTEM_DEFAULT_ZOOM, Vector2(), 0)
+	system_map.zoom_camera(SYSTEM_DEFAULT_ZOOM, system_map.zoom_shift, 0)
+#	system_map.zoom_camera(SYSTEM_DEFAULT_ZOOM, system_map.zoom_shift2, 0)
 	system_map.recall_camera(1)
 	
 func ascend_to_universe():
@@ -122,7 +124,7 @@ func _ready():
 
 onready var move_direction: Vector2 = Vector2()
 func on_map_contols_move(direction: Vector2):
-	move_direction = -direction * 100
+	move_direction = -direction * 300
 	
 func _process(delta):
 	if move_direction:
