@@ -162,7 +162,6 @@ func planet_pressed(planet):
 		remove_buttons()
 	
 func move_camera_to_planet(planet, target_zoom_scale = null):
-	
 	emit_signal('zoom')
 	if target_zoom_scale == null:
 		target_zoom_scale = zoom_scale
