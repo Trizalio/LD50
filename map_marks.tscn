@@ -19,6 +19,9 @@ uniform vec4 second_zone_color: hint_color = vec4(0., 1., .3, .01);
 uniform float cell_size = 0.1;
 uniform float cell_width = 0.005;
 uniform vec4 cell_color: hint_color = vec4(0., 0., .5, .1);
+const float M_PI = atan(1.) * 4.;
+const float M_2_PI = M_PI * 2.;
+const float M_PI_2 = M_PI / 2.;
 
 vec4 lighten(vec4 color, float power){
 	vec4 missing_color = vec4(1.) - color;
@@ -31,23 +34,32 @@ vec4 mix_colors(vec4 first, vec4 second){
 }
 
 vec4 get_position_jump_and_scan_range(int star_index){
+//	if (star_index > 0){
+//		return vec4(0.);
+//	}else{
+//		return vec4(0.3, 0.3, 0.1, 0.2);
+//	}
     vec4 tex = texelFetch(star_positions, ivec2(star_index, 0), 0);
 	vec4 result = (tex - vec4(0.5)) * 2.0;
 	return result;
 }
 
-vec4 get_color_for_zone(float range, float zone_range, vec4 zone_color){
-	vec4 result = vec4(0);
-	if (range < zone_range){
-		float d_range = zone_range - range;
-		result = zone_color;
-		result = lighten(result, d_range * lighten_power);
-		if (d_range < zone_range * border_width){
-			result = lighten(result, border_lighten_power);
-		}
+float abs_angle_diff(float first_angle, float second_angle){
+	float angle = abs(first_angle - second_angle);
+	while (angle > M_PI){
+		angle -= M_2_PI;
 	}
-	return result;
+	while (angle < -M_PI){
+		angle += M_2_PI;
+	}
+	return abs(angle);
 }
+
+float get_range_from_border(vec2 frag_coord){
+	vec2 local = frag_coord.xy - vec2(0.5);
+	return 1. - max(abs(local.y), abs(local.x)) * 2.;
+}
+
 vec4 get_color_for_zone2(float range, vec4 zone_color){
 	vec4 result = vec4(0);
 	if (range < 1.){
@@ -62,16 +74,27 @@ vec4 get_color_for_zone2(float range, vec4 zone_color){
 }
 
 void fragment(){
+//	float range_from_border = get_range_from_border(SCREEN_UV.xy);
 	COLOR = vec4(0.);
-
+//	COLOR.xy = SCREEN_UV.xy;
+//
 	vec2 uv = (UV - vec2(0.5)) * 2. - shift;
 	COLOR = vec4(0.);
 	float min_range = 2.;
 	float min_jump_range = 2.;
 	float min_scan_range = 2.;
+	float my_angle = atan(UV.y - 0.5, UV.x - 0.5);
  	for(int i = 0; i < stars_amount; ++i){
 		vec4 position_jump_and_scan_range = get_position_jump_and_scan_range(i);
 		vec2 position = position_jump_and_scan_range.xy;
+//		vec2 star_position_from_screen_center = position_jump_and_scan_range.xy - vec2(0.5) + shift;
+//		float angle = atan(star_position_from_screen_center.y , star_position_from_screen_center.x);
+//		float angle_diff = abs_angle_diff(my_angle, angle);
+
+//		if (angle_diff * range_from_border < 0.02) {
+////		if (abs_angle_diff(my_angle, angle) < 0.1 && range_from_border < 0.2) {
+//			COLOR = vec4(1.);
+//		}
 		float jump_range = position_jump_and_scan_range.z;
 		if (jump_range > 0.){
 			float current_jump_range = distance(uv, position) / jump_range;
@@ -86,22 +109,12 @@ void fragment(){
 	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color);
 	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color);
 	COLOR = mix_colors(second_zone, first_zone);
-//	COLOR = mix_colors(first_zone, second_zone);
-//	if (min_range < first_zone_range){
-//		float d_range = first_zone_range - min_range;
-//		COLOR = first_zone;
-//		COLOR = lighten(COLOR, d_range * lighten_power);
-//		if (d_range < first_zone_range * border_width){
-//			COLOR = lighten(COLOR, border_lighten_power);
-//		}
-//	}
+
 
 	vec2 cell_uv = mod (uv, cell_size);
 	if (cell_width > min(cell_uv.x, cell_uv.y)){
 		float power = max(min(cell_uv.x, cell_width - cell_uv.x), min(cell_uv.y, cell_width - cell_uv.y));
-//		COLOR = cell_color;
 		COLOR = mix(COLOR, cell_color, power / cell_width);
-//		COLOR.a = power / cell_width;
 	}
 
 	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
@@ -109,7 +122,7 @@ void fragment(){
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
-shader_param/stars_amount = null
+shader_param/stars_amount = 1
 shader_param/shift = Vector2( 0, 0 )
 shader_param/scale = 1.0
 shader_param/first_zone_range = 0.3

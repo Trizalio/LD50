@@ -162,10 +162,11 @@ func planet_pressed(planet):
 		remove_buttons()
 	
 func move_camera_to_planet(planet, target_zoom_scale = null):
-	emit_signal('zoom')
 	if target_zoom_scale == null:
 		target_zoom_scale = zoom_scale
 	current_planet = planet
+	emit_signal('zoom')
+	current_planet.on_zoomed()
 	var camera_center_position = zoom_shift2 - planet.position * target_zoom_scale
 	zoom_camera(target_zoom_scale, camera_center_position  - self.position)
 	set_info_title(planet.title)
@@ -173,6 +174,8 @@ func move_camera_to_planet(planet, target_zoom_scale = null):
 	
 func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = null):
 	emit_signal('unzoom')
+	if current_planet != null:
+		current_planet.on_unzoomed()
 	current_planet = null
 	zoom_camera(zoom, point, duration)
 	remove_buttons()

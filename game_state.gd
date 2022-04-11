@@ -19,17 +19,34 @@ func is_ustar_scannable(ustar):
 				return true
 	return false
 
-func is_ustar_reachable(ustar):
+func get_nearest_star_with_ships(pos: Vector2):
+	var min_distance = 9999999
+	var nearest_star = null
 	for other in ustars:
-		if other.is_inhibitable:
-			var distance = ustar.position.distance_to(other.position)
-			if distance < other.get_jump_range():
-				return distance
-	return false
+		if other.ships > 0:
+			var distance = pos.distance_to(other.position)
+			if distance < other.get_jump_range() and distance < min_distance:
+				min_distance = distance
+				nearest_star = other
+	return nearest_star
+	
+func is_ustar_reachable(ustar):
+	var nearest_star = get_nearest_star_with_ships(ustar.position)
+	if nearest_star:
+		var distance = ustar.position.distance_to(nearest_star.position)
+		return distance
 	
 func move_all_starts_from_center(force):
 	for ustar in ustars:
 		ustar.position *= (1 + force)
+
+func get_time_to_build_ship():
+	return 100
+
+func advance_in_time(years: int):
+	panel.cur_year += years
+	move_all_starts_from_center(years / 1000)
+	
 
 func button_pressed(object, action: String):
 	if object == null:
@@ -45,16 +62,24 @@ func button_pressed(object, action: String):
 			game.recall_system_camera()
 			
 	if object.is_planet:
+		if action == "Build ship":
+			object.owner_ustar.ships += 1
+			advance_in_time(get_time_to_build_ship())
+			game.rerender_galaxy()
+			game.ascend_to_universe()
 		if action == 'Colonise':
-			var distance = is_ustar_reachable(object.owner_ustar)
+			var nearest_star = get_nearest_star_with_ships(object.owner_ustar.position)
+			var distance = 0
+			if nearest_star:
+				distance = object.position.distance_to(nearest_star.position)
 			if distance:
+				nearest_star.ships -= 1
 				object.is_inhibitable = true
 				object.owner_ustar.is_inhibitable = true
 				panel.max_materials += 10
 				panel.max_energy += 10
 				panel.cur_population += 10
-				panel.cur_year += distance
-				move_all_starts_from_center(distance / 1000)
+				advance_in_time(distance)
 				game.rerender_galaxy()
 				game.ascend_to_universe()
 #			game.recall_system_camera()
@@ -68,7 +93,9 @@ func get_actions_for_object(object):
 			actions += ["View"]
 		
 	if object.is_planet:
-		if not object.is_inhibitable:
+		if object.is_inhibitable:
+			actions += ["Build ship"]
+		elif not object.owner_ustar.is_inhibitable:
 			var distance = is_ustar_reachable(object.owner_ustar)
 			if distance:
 				actions += ["Colonise"]
@@ -94,7 +121,9 @@ func get_hint_for_object(object) -> String:
 		result = 'Star'
 		
 	if object.is_planet:
-		if is_ustar_reachable(object.owner_ustar):
+		if object.is_inhibitable:
+			result = 'Colonised planet'
+		elif is_ustar_reachable(object.owner_ustar):
 			result = 'Colonisable planet'
 		else:
 			result = 'Too far too colonise planet'
@@ -102,20 +131,25 @@ func get_hint_for_object(object) -> String:
 	return '[center]' + result + '[/center]'
 
 func get_hint_for_object_action(object, action: String):
+	var result = ''
 	if object.is_ustar:
 		if action == 'View':
-			return 'Move to star system'
+			result = 'Move to star system'
 		if action == 'Back':
-			return 'Return to the universe'
+			result = 'Return to the universe'
 	else:
 		if action == 'Back':
-			return 'Return to the system'
+			result = 'Return to the system'
 		
 	if object.is_planet:
+		print('@action:', action)
+		if action == "Build ship":
+			result = ('Build giant ark ship, able to travel between stars, ' + 
+				'spend ' + str(get_time_to_build_ship()) + ' years')
 		if action == 'Colonise':
 			var distance = is_ustar_reachable(object.owner_ustar)
-			return 'Colonise system, spend ' + str(int(distance)) + ' years'
-	return ''
+			result = 'Colonise system, spend ' + str(int(distance)) + ' years'
+	return '[center]' + result + '[/center]'
 	
 
 func generate_random_position():
@@ -190,6 +224,10 @@ func generate_random_ustars():
 					
 		stars.append(new_star)
 	nearest_ustar.is_inhibitable = true
+	nearest_ustar.ships = 1
+	var planets = get_planets_by_ustar(nearest_ustar)
+	var home_planet = Rand.choice(planets)
+	home_planet.is_inhibitable = true
 	print('generate_random_planets generated: ', len(stars))
 	ustars = stars
 	return stars

@@ -18,6 +18,11 @@ var sprite: Sprite = null
 var title: String
 var is_inhibitable: bool = false setget set_is_inhibitable
 const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
+var ships: int = 0 setget set_ships_amount
+
+func set_ships_amount(new_ships: int):
+	ships = new_ships
+	$ship.visible = ships > 0
 
 func set_is_inhibitable(new_is_inhibitable):
 	is_inhibitable = new_is_inhibitable
@@ -97,15 +102,22 @@ const FIRST_NAMES = [
 	"Zaniah", "Zaurak", "Zavijah", "Zibal", "Zosma"
 ]
 const SECOND_NAMES = [
-	"ALPHA", "BETA", "GAMMA", "ZETA", "IOTA", "OMICRON", "XI", "MU", "THETA", 
-	"KAPPA", "ETA", "EPSILON"
+	"Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", 
+	"Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", 
+	"Chi", "Psi", "Omega"
 ]
 func generate_star_name() -> String:
 	return Rand.choice(FIRST_NAMES)
 	
 func generate_planet_name(ustar) -> String:
-	return ustar.title + " " + Rand.choice(SECOND_NAMES)
-	
+	return ustar.prepare_name_for_child_planet()
+#	return ustar.title + " " + Rand.choice(SECOND_NAMES)
+
+var child_planets_amount: int = 0
+func prepare_name_for_child_planet() -> String:
+	child_planets_amount += 1
+	return self.title + " " + SECOND_NAMES[child_planets_amount]
+
 var start_position = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -114,19 +126,26 @@ func _ready():
 	pass # Replace with function body.
 	
 func get_jump_range() -> float:
-	if not is_inhibitable:
-		return 0.0
-	else:
+	if ships:
 		return GameState.get_jump_range()
+	else:
+		return 0.0
 	
 func get_scan_range() -> float:
-	if not is_inhibitable:
-		return 0.0
-	else:
+	if is_inhibitable:
 		return GameState.get_scan_range()
+	else:
+		return 0.0
 		
+onready var name_node = $ustar_labels/center/name
+func on_zoomed():
+	Animator.animate(name_node, "modulate", Color.transparent, anim_duration, anim_trans, anim_ease)
+	
+func on_unzoomed():
+	Animator.animate(name_node, "modulate", Color.white, anim_duration, anim_trans, anim_ease)
 
 func _prepare_any():
+	$ustar_labels/center/name.text = title
 	sprite.visible = true
 	sprite.material = sprite.material.duplicate()
 	if is_planet:
@@ -170,7 +189,6 @@ func prepare_gas_giant(ustar):
 func prepare_ustar():
 	is_ustar = true
 	title = generate_star_name()
-	$ustar_labels/center/name.text = title
 	sprite = $ustar_sprite
 	_prepare_any()
 	set_size(Rand.float_in_range(0.3, 0.4))
