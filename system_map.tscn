@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://map_marks.tscn" type="PackedScene" id=1]
+[ext_resource path="res://binding.tscn" type="PackedScene" id=2]
 [ext_resource path="res://system_map.gd" type="Script" id=5]
 [ext_resource path="res://resources/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf" type="DynamicFontData" id=6]
 
@@ -20,6 +21,9 @@ script = ExtResource( 5 )
 [node name="root" type="Node2D" parent="base"]
 
 [node name="marks" parent="base/root" instance=ExtResource( 1 )]
+visible = false
+
+[node name="binding" parent="base/root" instance=ExtResource( 2 )]
 visible = false
 
 [node name="planets" type="Node2D" parent="base/root"]

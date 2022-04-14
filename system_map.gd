@@ -2,6 +2,7 @@ extends Node2D
 
 signal zoom
 signal unzoom
+signal ustar_selected(ustar)
 var PlanetButton = preload('res://planet_button.tscn')
 
 #const zoom_zero_shift: Vector2 = Vector2(0, 0)
@@ -39,7 +40,7 @@ func load_universe(ustars: Array):
 	marks.visible = true
 	marks.pass_stars_to_marks(ustars)
 #	pass_stars_to_marks(stars)
-	
+
 	
 func load_system(star, planets: Array):
 	print('load_system: ', star, ', planets:', planets)
@@ -53,11 +54,15 @@ func clear_planets():
 	for child in planets.get_children():
 		planets.remove_child(child)
 		child.disconnect("pressed", self, 'planet_pressed')
+		child.disconnect("mouse_entered", self, 'planet_mouse_entered')
+		child.disconnect("mouse_exited", self, 'planet_mouse_exited')
 	
 func add_planet(planet: Planet):
 	var planets = $base/root/planets
 	planets.add_child(planet)
 	planet.connect("pressed", self, 'planet_pressed', [planet])
+	planet.connect("mouse_entered", self, 'planet_mouse_entered', [planet])
+	planet.connect("mouse_exited", self, 'planet_mouse_exited', [planet])
 
 func remove_buttons():
 	var buttons_node = $buttons
@@ -145,9 +150,12 @@ func set_info_title(text: String):
 		title.text = text
 		color = Color(1, 1, 1, 1)
 	Animator.animate(title, 'modulate', color, zoom_duration, zoom_trans, zoom_ease)
-
-#var texts = []
+	
 func planet_pressed(planet):
+	if source != null:
+#		if source != planet:
+#			finish_select_destination(planet)	
+		return
 	if current_planet != planet:
 #		recall_camera()
 
@@ -183,11 +191,77 @@ func recall_camera(zoom: float = 1, point: Vector2 = Vector2(0, 0), duration = n
 	show_object_hint()
 
 
+var hovered_planet = null
+func planet_mouse_entered(planet):
+	hovered_planet = planet
+
+func planet_mouse_exited(planet):
+	if hovered_planet == planet:
+		hovered_planet = null
+
+
+const shader_scale = 22 * 64 / 2
+func pack_vector2(value: Vector2) -> Vector2:
+	return value / shader_scale / 2
+
+onready var binding = $base/root/binding
+var source = null
+func start_select_destination(source_ustar):
+	binding.visible = true
+	source = source_ustar
+	var start_position: Vector2 = Vector2()
+	if source != null:
+		start_position = source.position
+#	print('start_select_destination: ', start_position, ' / ', packed_position)
+	binding.start_position = start_position
+	
+func end_select_destination():
+	binding.visible = false
+	source = null
+	binding.start_position = Vector2()
+
+var last_bind_position: Vector2 = Vector2()
+func set_bind_position(bind_position: Vector2):
+	last_bind_position = bind_position
+	binding.end_position = last_bind_position
+
+func _input(event):
+	if source != null:
+		if event is InputEventMouseMotion:
+			var bind_position: Vector2 = event.position - self.position
+#			var bind_position: Vector2 = event.position - Vector2(700, 450)
+			var binding_color = binding.neutral_color
+			if hovered_planet != null:
+				binding_color = binding.good_color
+				bind_position = hovered_planet.position
+				
+			if bind_position.distance_to(source.position) > GameState.get_jump_range():
+				binding_color = binding.bad_color
+				
+			binding.color = binding_color
+			if bind_position != last_bind_position:
+				set_bind_position(bind_position)
+		
+		
+		if event is InputEventMouseButton:
+			emit_signal("ustar_selected", hovered_planet)
+		
+#   # Mouse in viewport coordinates.
+#   if event is InputEventMouseButton:
+#       print("Mouse Click/Unclick at: ", event.position)
+#   elif event is InputEventMouseMotion:
+#       print("Mouse Motion at: ", event.position)
+#
+#   # Print the size of the viewport.
+#   print("Viewport Resolution is: ", get_viewport_rect().size)
 
 func _process(delta):
 	
 	marks.shift = self.position - Vector2(700, 450)
 	marks.position = -self.position + Vector2(700, 450)
+	
+	binding.shift = self.position - Vector2(700, 450)
+	binding.position = -self.position + Vector2(700, 450)
 #
 #
 #const shader_scale = 22 * 64 / 2

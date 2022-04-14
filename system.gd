@@ -18,6 +18,7 @@ func set_universe_invisible():
 	var universe_map = $universe_map
 	if universe_map.current_planet != null:
 		universe_map.visible = false
+
 	
 
 func descend_into_star(ustar):
@@ -87,7 +88,13 @@ func ascend_to_universe():
 var ustars = []
 func rerender_galaxy():
 	universe_map.load_universe(ustars)
-
+	
+func start_select_destination(source_ustar):
+	universe_map.start_select_destination(source_ustar)
+	
+func end_select_destination():
+	universe_map.end_select_destination()
+	
 onready var map_controls = $vbox/map_controls
 onready var universe_map = $universe_map
 onready var map_marks = $map_marks
@@ -109,11 +116,13 @@ func on_universe_unzoom():
 	print('on_universe_unzoom')
 	show_map_controls()
 
-
+func on_ustar_selected(ustar):
+	GameState.ustar_selected(ustar)
 
 func _ready():
 	GameState.register_game(self)
 #	var universe_map = $universe_map
+	universe_map.connect("ustar_selected", self, "on_ustar_selected")
 	universe_map.connect("zoom", self, "on_universe_zoom")
 	universe_map.connect("unzoom", self, "on_universe_unzoom")
 	map_controls.connect("move", self, "on_map_contols_move")
@@ -122,10 +131,50 @@ func _ready():
 	rerender_galaxy()
 #	universe_map.load_universe(ustars)
 
+onready var status_label = $vbox2/center/status
+func display_status(status: String):
+	if status:
+#		status_label.visible = true
+		universe_map.animate(status_label, 'modulate', Color.white)
+		status_label.text = status
+	else:
+		universe_map.animate(status_label, 'modulate', Color.transparent)
+#		status_label.visible = false
+		
+	
+	
+onready var confirmation = $confirmation
+onready var accept_button = $confirmation/margin/margin/vbox/hbox/accept
+onready var back_button = $confirmation/margin/margin/vbox/hbox/back
+onready var rich_text = $confirmation/margin/margin/vbox/rich_text
+func display_modal(text: String, callback_name: String, args: Array):
+	rich_text.text = text
+	confirmation.visible = true
+	var all_args = [callback_name, args]
+	accept_button.connect("pressed", self, "on_accept_pressed", all_args, CONNECT_ONESHOT)
+#	back_button.connect("pressed", self, "on_back_pressed")
+	
+
+	
+func on_accept_pressed(callback_name, args):
+#	accept_button.disconnect("pressed", self, "on_accept_pressed")
+	GameState.callv(callback_name, args)
+	confirmation.visible = false
+	pass
+
+func on_back_pressed():
+	accept_button.disconnect("pressed", self, "on_accept_pressed")
+	confirmation.visible = false
+#	back_button.disconnect("pressed", self, "on_back_pressed")
+#	pass # Replace with function body.
+	
+
 onready var move_direction: Vector2 = Vector2()
 func on_map_contols_move(direction: Vector2):
 	move_direction = -direction * 300
-	
+
+
+
 func _process(delta):
 	if move_direction:
 		universe_map.position += delta * move_direction
@@ -135,3 +184,4 @@ func _on_to_starmap_pressed():
 #	GameState.
 #	$resources_panel.max_materials += 100
 	pass # Replace with function body.
+

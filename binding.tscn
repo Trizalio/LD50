@@ -1,0 +1,63 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+[ext_resource path="res://binding.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+uniform vec2 shift = vec2(0.);
+uniform vec2 start_position = vec2(0.);
+uniform vec2 end_position = vec2(0.);
+uniform vec4 bindning_color: hint_color = vec4(0.5, 0.5, .0, .6);
+uniform float speed = 5.;
+uniform float width = .22;
+
+void fragment(){
+	COLOR = vec4(vec3(0.), 0.);
+	if (start_position != end_position){
+		
+		vec2 uv = UV -vec2(0.5) - shift;
+		vec2 uv1 = start_position;
+		vec2 uv2 = end_position;
+		
+		float numerator = abs((uv2.y - uv1.y) * uv.x - (uv2.x - uv1.x) * uv.y + uv2.x * uv1.y - uv2.y * uv1.x);
+		float line_length = distance(uv1, uv2);
+		float range = numerator / line_length;
+		float normalised_range = range / width * 100.;
+		if (normalised_range < 1.01){
+			float range_from_start = distance(uv, uv1);
+			float max_dist = max(distance(uv, uv2), range_from_start);
+			float power = clamp(1. - pow(normalised_range, 1.4), 0., 1.);
+			float separation_power = clamp(pow(abs(fract(-TIME * speed + range_from_start / 0.05) - 0.4) * 4., 10.), 0., 1.);
+		//	separation_power = 1.;
+			float out_of_line = max_dist - line_length;
+			if (out_of_line > 0.){
+				power /= 1. + pow(out_of_line * 500., 4);
+			}
+			power *= separation_power;
+		//	float power = clamp((.5 - pow(range, 0.2)) * 2., 0., 1.);
+		//	if (max_dist < line_length && range < 0.01){
+			COLOR = bindning_color;
+			COLOR.a *= clamp(power, 0. , 1.)
+	//		COLOR.b = ;
+		}
+	}
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/shift = Vector2( 0, 0 )
+shader_param/start_position = Vector2( 0, 0 )
+shader_param/end_position = Vector2( 0, 0 )
+shader_param/bindning_color = Color( 0.5, 0.5, 0, 0.6 )
+shader_param/speed = 3.0
+shader_param/width = 0.22
+
+[node name="binding" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="sprite" type="Sprite" parent="."]
+material = SubResource( 2 )
+scale = Vector2( 22, 22 )
+texture = ExtResource( 1 )

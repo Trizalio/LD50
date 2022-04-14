@@ -2,6 +2,8 @@ extends Node2D
 class_name Planet
 
 signal pressed
+signal mouse_entered
+signal mouse_exited
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
@@ -204,14 +206,15 @@ func animate_selection(target_value: float):
 	Animator.animate(self, "selection", target_value, anim_duration, anim_trans, anim_ease)
 
 func _on_mouse_entered():
+	emit_signal("mouse_entered")
 	animate_selection(0.05)
 	print('mouse_entered')
 #	var tween = get_node("tween")
 #	tween.interpolate_property(self, "selection", selection, 0.05, 0.3, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 #	tween.start()
 
-
 func _on_mouse_exited():
+	emit_signal("mouse_exited")
 	animate_selection(0)
 #	var tween = get_node("tween")
 #	tween.interpolate_property(self, "selection", selection, 0, 0.3, Tween.TRANS_SINE, Tween.EASE_IN_OUT)

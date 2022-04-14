@@ -46,6 +46,37 @@ func get_time_to_build_ship():
 func advance_in_time(years: int):
 	panel.cur_year += years
 	move_all_starts_from_center(years / 1000)
+
+func get_flight_duration(from, to):
+	return int(from.position.distance_to(to.position))
+
+func request_flight_confirmation(from, to):
+	var flight_duration = get_flight_duration(from, to)
+	game.display_modal(
+		"Send ship from " + from.title + " to " + to.title + "?" + 
+		"\nIt will take " + str(flight_duration) + " years, " + 
+		"\nduring which the stars will scatter from each other", 
+		"confirmation_got", [from, to]
+	)
+	
+func confirmation_got(from, to):
+	print("confirmation_got:", from, to)
+	
+	from.ships -= 1
+	to.ships += 1
+	game.rerender_galaxy()
+	pass
+
+var sending_ship_from_ustar = null
+func ustar_selected(ustar):
+	if sending_ship_from_ustar == null:
+		return
+		
+	game.end_select_destination()
+	game.display_status("")
+	if ustar != null and ustar != sending_ship_from_ustar:
+		request_flight_confirmation(sending_ship_from_ustar, ustar)
+	sending_ship_from_ustar = null
 	
 
 func button_pressed(object, action: String):
@@ -53,6 +84,11 @@ func button_pressed(object, action: String):
 		print('wild button pressed')
 		return
 	if object.is_ustar:
+		if action == 'Send ship':
+			sending_ship_from_ustar = object
+			game.display_status("Select star to send ship")
+			game.start_select_destination(object)
+			game.recall_universe_camera()
 		if action == 'View':
 			game.descend_into_star(object)
 		if action == 'Back':
@@ -89,16 +125,20 @@ func button_pressed(object, action: String):
 func get_actions_for_object(object):
 	var actions = []
 	if object.is_ustar:
+		
+		if object.ships:
+			actions += ["Send ship"]
 		if is_ustar_scannable(object):
 			actions += ["View"]
 		
 	if object.is_planet:
+		
 		if object.is_inhibitable:
 			actions += ["Build ship"]
-		elif not object.owner_ustar.is_inhibitable:
-			var distance = is_ustar_reachable(object.owner_ustar)
-			if distance:
-				actions += ["Colonise"]
+		elif not object.owner_ustar.is_inhibitable and object.owner_ustar.ships > 0:
+#			var distance = is_ustar_reachable(object.owner_ustar)
+#			if distance:
+			actions += ["Colonise"]
 			
 #	if object.is_star:
 	actions += ["Back"]
