@@ -162,10 +162,11 @@ shader_param/noise = SubResource( 6 )
 [sub_resource type="Shader" id=8]
 code = "shader_type canvas_item;
 
+uniform vec2 seed = vec2(0.);
 const float M_PI = atan(1.) * 4.;
 const float M_2_PI = M_PI * 2.;
 const float M_PI_2 = M_PI / 2.;
-const float circle_center_range = 0.15;
+uniform float circle_center_range = 0.15;
 const float circle_size = 0.05;
 const float circle_speed = 1.5;
 
@@ -222,6 +223,8 @@ void fragment(){
 
 [sub_resource type="ShaderMaterial" id=9]
 shader = SubResource( 8 )
+shader_param/seed = Vector2( 0, 0 )
+shader_param/circle_center_range = 0.15
 
 [sub_resource type="OpenSimplexNoise" id=10]
 

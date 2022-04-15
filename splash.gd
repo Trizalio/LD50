@@ -7,3 +7,11 @@ func _ready():
 func _on_start_pressed():
 	print('goto')
 	SceneChanger.goto_scene('res://system.tscn', 0.5, 0.5)
+
+
+#Courage Endures
+#Trevor Kowalski
+# • 
+#Courage Endures
+# • 
+#2019

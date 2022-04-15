@@ -5,6 +5,7 @@ signal unzoom
 signal ustar_selected(ustar)
 var PlanetButton = preload('res://planet_button.tscn')
 
+export var marks_rendered: float = 0 setget set_marks_rendered
 #const zoom_zero_shift: Vector2 = Vector2(0, 0)
 const zoom_zero_shift: Vector2 = Vector2(700, 450)
 #const zoom_shift: Vector2 = Vector2(500, 475)
@@ -17,10 +18,14 @@ const zoom_ease = Tween.EASE_IN_OUT
 const button_outer_x: float = 500.0
 var current_planet = null
 
-func animate(object: Object, property: NodePath, final_val, duration: float = -1):
+func set_marks_rendered(new_marks_rendered: float):
+	var planets = $base/root/planets
+	marks.pass_stars_to_marks(planets.get_children())
+
+func animate(object: Object, property: NodePath, final_val, duration: float = -1, delete: bool = false):
 	if duration < 0:
 		duration = zoom_duration
-	Animator.animate(object, property, final_val, duration, zoom_trans, zoom_ease)
+	Animator.animate(object, property, final_val, duration, zoom_trans, zoom_ease, delete)
 
 onready var marks = $base/root/marks
 # Called when the node enters the scene tree for the first time.
@@ -58,6 +63,7 @@ func clear_planets():
 		child.disconnect("mouse_exited", self, 'planet_mouse_exited')
 	
 func add_planet(planet: Planet):
+	print('add planet')
 	var planets = $base/root/planets
 	planets.add_child(planet)
 	planet.connect("pressed", self, 'planet_pressed', [planet])

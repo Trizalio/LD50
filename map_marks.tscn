@@ -37,7 +37,7 @@ vec4 get_position_jump_and_scan_range(int star_index){
 //	if (star_index > 0){
 //		return vec4(0.);
 //	}else{
-//		return vec4(0.3, 0.3, 0.1, 0.2);
+//		return vec4(0.3, 0.3, 0.0, 0.2);
 //	}
     vec4 tex = texelFetch(star_positions, ivec2(star_index, 0), 0);
 	vec4 result = (tex - vec4(0.5)) * 2.0;
@@ -60,10 +60,13 @@ float get_range_from_border(vec2 frag_coord){
 	return 1. - max(abs(local.y), abs(local.x)) * 2.;
 }
 
-vec4 get_color_for_zone2(float range, vec4 zone_color){
+vec4 get_color_for_zone2(float range, vec4 zone_color, float time){
 	vec4 result = vec4(0);
+	float wave_phase = fract(time / range);
 	if (range < 1.){
 		float d_range = 1. - range;
+		float range_from_wave = abs(range - wave_phase);
+//		d_range -= clamp(abs(0.5 - range_from_wave), 0., 1.);
 		result = zone_color;
 		result = lighten(result, d_range * lighten_power);
 		if (d_range < 1. * border_width){
@@ -106,8 +109,8 @@ void fragment(){
 			min_scan_range = min(min_scan_range, current_scan_range);
 		}
 	}
-	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color);
-	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color);
+	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color, TIME);
+	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color, TIME);
 	COLOR = mix_colors(second_zone, first_zone);
 
 

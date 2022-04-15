@@ -10,8 +10,8 @@
 size = 72
 font_data = ExtResource( 2 )
 
-[sub_resource type="DynamicFont" id=5]
-size = 32
+[sub_resource type="DynamicFont" id=3]
+size = 128
 font_data = ExtResource( 2 )
 
 [sub_resource type="DynamicFont" id=4]
@@ -66,25 +66,25 @@ margin_bottom = 850.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="elements/VBoxContainer2"]
 margin_right = 1300.0
-margin_bottom = 43.0
+margin_bottom = 170.0
 
 [node name="label" type="Label" parent="elements/VBoxContainer2/VBoxContainer"]
 margin_right = 1300.0
-margin_bottom = 43.0
-custom_fonts/font = SubResource( 5 )
+margin_bottom = 170.0
+custom_fonts/font = SubResource( 3 )
 text = "Finite space"
 
 [node name="HBoxContainer" type="VBoxContainer" parent="elements/VBoxContainer2"]
-margin_top = 47.0
+margin_top = 174.0
 margin_right = 1300.0
 margin_bottom = 820.0
 size_flags_vertical = 3
 alignment = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="elements/VBoxContainer2/HBoxContainer"]
-margin_top = 639.0
+margin_top = 512.0
 margin_right = 1300.0
-margin_bottom = 773.0
+margin_bottom = 646.0
 alignment = 2
 
 [node name="start" type="Button" parent="elements/VBoxContainer2/HBoxContainer/HBoxContainer"]

@@ -52,18 +52,44 @@ func get_flight_duration(from, to):
 
 func request_flight_confirmation(from, to):
 	var flight_duration = get_flight_duration(from, to)
-	game.display_modal(
-		"Send ship from " + from.title + " to " + to.title + "?" + 
-		"\nIt will take " + str(flight_duration) + " years, " + 
-		"\nduring which the stars will scatter from each other", 
-		"confirmation_got", [from, to]
-	)
+	if flight_duration > get_jump_range():
+		game.display_modal(to.title + " is too far to send ship from " + from.title)
+	else:
+		game.display_modal(
+			"Send ship from " + from.title + " to " + to.title + "?" + 
+			"\nIt will take " + str(flight_duration) + " years, " + 
+			"\nduring which the stars will scatter from each other", 
+			"confirmation_got", [from, to]
+		)
+
+const float_double_range_per_years = 1000
+func get_ustar_position_after_years(ustar, years: float) -> Vector2:
+	return ustar.position * (float_double_range_per_years + years) / float_double_range_per_years
 	
 func confirmation_got(from, to):
+	var flight_duration = get_flight_duration(from, to)
+	var duration = pow(flight_duration, 1.1) / 100
 	print("confirmation_got:", from, to)
 	
+	var ship = PlanetScene.instance()
+	ship.prepare_uship()
 	from.ships -= 1
-	to.ships += 1
+	ship.position = from.position
+	for star in game.ustars:
+		var target_position = get_ustar_position_after_years(star, flight_duration)
+		game.universe_map.animate(star, 'position', target_position, duration)
+		
+	game.ustars.append(ship)
+	game.universe_map.animate(ship, 'position', get_ustar_position_after_years(to, flight_duration), duration)
+	game.universe_map.animate(panel, 'cur_year', panel.cur_year + flight_duration, duration)
+	
+	Animator.call_delayed(to, "set_ships_amount", duration, to.ships + 1)
+	game.universe_map.animate(game.universe_map, 'marks_rendered', 0, duration + 10.1)
+	Animator.call_delayed(game, "track", duration, null)
+	Animator.call_delayed(ship, "set", duration, 'visible', false)
+	game.track(ship)
+	
+#	to.ships += 1
 	game.rerender_galaxy()
 	pass
 
@@ -118,6 +144,7 @@ func button_pressed(object, action: String):
 				advance_in_time(distance)
 				game.rerender_galaxy()
 				game.ascend_to_universe()
+		
 #			game.recall_system_camera()
 #		else:
 #			game.ascend_to_universe()
@@ -285,10 +312,10 @@ func get_planets_by_ustar(ustar):
 	
 
 func get_jump_range():
-	return 150
+	return 200
 
 func get_scan_range():
-	return 300
+	return 400
 	
 # Called when the node enters the scene tree for the first time.
 func _ready():

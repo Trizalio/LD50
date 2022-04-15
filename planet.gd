@@ -16,6 +16,7 @@ const anim_ease = Tween.EASE_IN_OUT
 var is_ustar: bool = false
 var is_star: bool = false
 var is_planet: bool = false
+var is_ship: bool = false
 var sprite: Sprite = null
 var title: String
 var is_inhibitable: bool = false setget set_is_inhibitable
@@ -195,6 +196,15 @@ func prepare_ustar():
 	_prepare_any()
 	set_size(Rand.float_in_range(0.3, 0.4))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+	return self
+	
+func prepare_uship():
+	is_ship = true
+	title = ''
+	sprite = $ship
+	_prepare_any()
+#	set_size(Rand.float_in_range(0.3, 0.4))
+	sprite.material.set_shader_param("circle_center_range", 0.0)
 	return self
 	
 

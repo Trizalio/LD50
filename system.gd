@@ -19,6 +19,9 @@ func set_universe_invisible():
 	if universe_map.current_planet != null:
 		universe_map.visible = false
 
+var tracking = null
+func track(ustar = null):
+	tracking = ustar
 	
 
 func descend_into_star(ustar):
@@ -147,14 +150,13 @@ onready var confirmation = $confirmation
 onready var accept_button = $confirmation/margin/margin/vbox/hbox/accept
 onready var back_button = $confirmation/margin/margin/vbox/hbox/back
 onready var rich_text = $confirmation/margin/margin/vbox/rich_text
-func display_modal(text: String, callback_name: String, args: Array):
+func display_modal(text: String, callback_name: String = '', args: Array = []):
 	rich_text.text = text
 	confirmation.visible = true
-	var all_args = [callback_name, args]
-	accept_button.connect("pressed", self, "on_accept_pressed", all_args, CONNECT_ONESHOT)
-#	back_button.connect("pressed", self, "on_back_pressed")
-	
-
+	if callback_name:
+		var all_args = [callback_name, args]
+		accept_button.connect("pressed", self, "on_accept_pressed", all_args, CONNECT_ONESHOT)
+	accept_button.visible = callback_name != ''
 	
 func on_accept_pressed(callback_name, args):
 #	accept_button.disconnect("pressed", self, "on_accept_pressed")
@@ -178,6 +180,11 @@ func on_map_contols_move(direction: Vector2):
 func _process(delta):
 	if move_direction:
 		universe_map.position += delta * move_direction
+		
+	if tracking:
+		var target_position = Vector2(700, 450) - tracking.position
+		var power = 0.1;
+		universe_map.position = (target_position * power + universe_map.position) / (1 + power)
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()

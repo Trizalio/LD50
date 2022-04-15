@@ -7,6 +7,7 @@ uniform float size = 0.4;
 uniform float glow_power = .06;
 uniform float selection_width = 0.08;
 uniform float selection_gap = 0.0;
+uniform vec2 seed = vec2(0.);
 const float inner_part = 0.9;
 const float inner_alpha = 0.9;
 
