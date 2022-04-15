@@ -23,9 +23,10 @@ var tracking = null
 func track(ustar = null):
 	tracking = ustar
 	
-
+onready var to_starmap = $to_starmap
 func descend_into_star(ustar):
-	$to_starmap.disabled = false
+	to_starmap.disabled = false
+	universe_map.animate(to_starmap, 'modulate', Color.white)
 	print('descend_into_star: ', ustar)
 	var universe_map = $universe_map
 	var system_map = $system_map
@@ -62,7 +63,8 @@ func descend_into_star(ustar):
 	system_map.recall_camera(1)
 	
 func ascend_to_universe():
-	$to_starmap.disabled = true
+	to_starmap.disabled = true
+	universe_map.animate(to_starmap, 'modulate', Color.transparent)
 	print('ascend_to_universe')
 	var universe_map = $universe_map
 	var system_map = $system_map
@@ -134,8 +136,13 @@ func _ready():
 	rerender_galaxy()
 #	universe_map.load_universe(ustars)
 
-onready var status_label = $vbox2/center/status
-func display_status(status: String):
+onready var status_labels = [
+	$vbox2/center/status, $vbox2/center2/status, $vbox2/center3/status, 
+	$vbox2/center4/status, $vbox2/center5/status
+]
+#onready var status_label = $vbox2/center/status
+func display_status(status: String, index: int = 1):
+	var status_label = status_labels[index - 1]
 	if status:
 #		status_label.visible = true
 		universe_map.animate(status_label, 'modulate', Color.white)
@@ -173,12 +180,13 @@ func on_back_pressed():
 
 onready var move_direction: Vector2 = Vector2()
 func on_map_contols_move(direction: Vector2):
-	move_direction = -direction * 300
+	if not universe_map.current_planet:
+		move_direction = -direction * 300
 
 
 
 func _process(delta):
-	if move_direction:
+	if move_direction and not tracking and not universe_map.current_planet:
 		universe_map.position += delta * move_direction
 		
 	if tracking:

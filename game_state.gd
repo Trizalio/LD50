@@ -36,16 +36,19 @@ func is_ustar_reachable(ustar):
 		var distance = ustar.position.distance_to(nearest_star.position)
 		return distance
 	
-func move_all_starts_from_center(force):
-	for ustar in ustars:
-		ustar.position *= (1 + force)
+func move_all_starts_from_center(flight_duration):
+	for star in ustars:
+		var target_position = get_ustar_position_after_years(star, flight_duration)
+		star.position = target_position
+#		game.universe_map.animate(star, 'position', target_position, duration)
+#		ustar.position *= (1 + force)
 
 func get_time_to_build_ship():
 	return 100
 
 func advance_in_time(years: int):
 	panel.cur_year += years
-	move_all_starts_from_center(years / 1000)
+	move_all_starts_from_center(years)
 
 func get_flight_duration(from, to):
 	return int(from.position.distance_to(to.position))
@@ -65,6 +68,48 @@ func request_flight_confirmation(from, to):
 const float_double_range_per_years = 1000
 func get_ustar_position_after_years(ustar, years: float) -> Vector2:
 	return ustar.position * (float_double_range_per_years + years) / float_double_range_per_years
+
+func check_for_game_over():
+#	var ustars = ustar_to_planets.keys()
+	var inhibited_stars_amount = 0
+	var jump_range = get_jump_range()
+	for i in range(0, len(ustars)):
+		var current = ustars[i]
+#		print(i, current.is_inhibitable)
+		if current.is_inhibitable:
+			inhibited_stars_amount += 1
+		else:
+			for j in range(i, len(ustars)):
+#				print(j)
+				var other = ustars[j]
+				if ((other.is_inhibitable or other.ships > 0) 
+					and get_flight_duration(current, other) < jump_range):
+					print('found')
+					return
+	print("GAME OVER")
+	
+#	'cosmological horizon'
+#	game.display_status("All not inhabited stars are too far", 1)
+	Animator.call_delayed(game, 'display_status', 0, "All not inhabited stars are too far", 2)
+	Animator.call_delayed(game, 'display_status', 2, "Your race is trapped on " + str(inhibited_stars_amount) + " stars", 3)
+	Animator.call_delayed(game, 'display_status', 4, "And soon all of the unreachable stars will fade away into darkness ", 4)
+	Animator.call_delayed(game, 'display_status', 4, "And all others will soon fade into darkness", 4)
+	var text_end = 6
+	var stars_dissappear_in = 4
+	Animator.call_delayed(game, 'display_status', text_end + stars_dissappear_in, "Game over", 5)
+	
+	for i in range(0, len(ustars)):
+		var current = ustars[i]
+#		print(i, current.is_inhibitable)
+		if not current.is_inhibitable:
+			Animator.call_delayed(game.universe_map, 'animate', text_end, current, 'modulate', Color.transparent, stars_dissappear_in)
+			
+#	Animator.call_delayed(game.universe_map, 'animate', text_end, game.universe_map, 'modulate', Color.transparent, stars_dissappear_in)
+	Animator.call_delayed(game.universe_map, 'animate', text_end, game.get_node("background/background_stars"), 'modulate', Color.transparent, stars_dissappear_in)
+#	Animator.call_delayed(game.universe_map, "set", text_end + stars_dissappear_in, 'visible', false)
+#	Animator.call_delayed(game, 'display_status', 1, "And sooner or later inhabited stars will become too far from each other", 2)
+#	Animator.call_delayed(game, 'display_status', 1, "All ", 2)
+#	SceneChanger.goto_scene("")
 	
 func confirmation_got(from, to):
 	var flight_duration = get_flight_duration(from, to)
@@ -87,6 +132,7 @@ func confirmation_got(from, to):
 	game.universe_map.animate(game.universe_map, 'marks_rendered', 0, duration + 10.1)
 	Animator.call_delayed(game, "track", duration, null)
 	Animator.call_delayed(ship, "set", duration, 'visible', false)
+	Animator.call_delayed(self, "check_for_game_over", duration)
 	game.track(ship)
 	
 #	to.ships += 1
@@ -129,6 +175,7 @@ func button_pressed(object, action: String):
 			advance_in_time(get_time_to_build_ship())
 			game.rerender_galaxy()
 			game.ascend_to_universe()
+			check_for_game_over()
 		if action == 'Colonise':
 			var nearest_star = get_nearest_star_with_ships(object.owner_ustar.position)
 			var distance = 0
@@ -144,6 +191,7 @@ func button_pressed(object, action: String):
 				advance_in_time(distance)
 				game.rerender_galaxy()
 				game.ascend_to_universe()
+				check_for_game_over()
 		
 #			game.recall_system_camera()
 #		else:

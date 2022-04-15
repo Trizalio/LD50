@@ -21,7 +21,7 @@ func pass_stars_to_marks(ustars):
 				pack(star.position.x), pack(star.position.y), 
 				pack(jump_range),  pack(scan_range)
 			))
-	print("pass_stars_to_marks: ", data)
+#	print("pass_stars_to_marks: ", data)
 #	data = [Color(0, 0.5, 0, 0)]
 #	print(data)
 #	data = []

@@ -12,7 +12,7 @@ const zoom_zero_shift: Vector2 = Vector2(700, 450)
 const zoom_shift: Vector2 = Vector2(-200, 25)
 const zoom_shift2: Vector2 = Vector2(500, 475)
 const zoom_scale: float = 4.0
-const zoom_duration: float = 0.8
+const zoom_duration: float = 0.7
 const zoom_trans = Tween.TRANS_SINE
 const zoom_ease = Tween.EASE_IN_OUT
 const button_outer_x: float = 500.0
@@ -63,7 +63,7 @@ func clear_planets():
 		child.disconnect("mouse_exited", self, 'planet_mouse_exited')
 	
 func add_planet(planet: Planet):
-	print('add planet')
+#	print('add planet')
 	var planets = $base/root/planets
 	planets.add_child(planet)
 	planet.connect("pressed", self, 'planet_pressed', [planet])
@@ -137,11 +137,11 @@ func show_action_hint(button: Button):
 #	description_node.bbcode_text = description
 	
 
+onready var root = $base/root
 func zoom_camera(zoom: float, point: Vector2 = Vector2(0, 0), duration = null):
 	if duration == null:
 		duration = zoom_duration
 #	point -= self.position
-	var root = $base/root
 	if duration == 0:
 		root.position = point
 		root.scale = Vector2(zoom, zoom)
@@ -233,20 +233,20 @@ func set_bind_position(bind_position: Vector2):
 
 func _input(event):
 	if source != null:
-		if event is InputEventMouseMotion:
-			var bind_position: Vector2 = event.position - self.position
-#			var bind_position: Vector2 = event.position - Vector2(700, 450)
-			var binding_color = binding.neutral_color
-			if hovered_planet != null:
-				binding_color = binding.good_color
-				bind_position = hovered_planet.position
-				
-			if bind_position.distance_to(source.position) > GameState.get_jump_range():
-				binding_color = binding.bad_color
-				
-			binding.color = binding_color
-			if bind_position != last_bind_position:
-				set_bind_position(bind_position)
+#		if event is InputEventMouseMotion:
+#			var bind_position: Vector2 = event.position / root.scale - self.position
+##			var bind_position: Vector2 = event.position - Vector2(700, 450)
+#			var binding_color = binding.neutral_color
+#			if hovered_planet != null:
+#				binding_color = binding.good_color
+#				bind_position = hovered_planet.position
+#
+#			if bind_position.distance_to(source.position) > GameState.get_jump_range():
+#				binding_color = binding.bad_color
+#
+#			binding.color = binding_color
+#			if bind_position != last_bind_position:
+#				set_bind_position(bind_position)
 		
 		
 		if event is InputEventMouseButton:
@@ -262,6 +262,22 @@ func _input(event):
 #   print("Viewport Resolution is: ", get_viewport_rect().size)
 
 func _process(delta):
+	
+	if source != null:
+		var bind_position: Vector2 = (get_viewport().get_mouse_position() - root.position - self.position) / root.scale
+#		var bind_position: Vector2 = event.position / root.scale - self.position
+#			var bind_position: Vector2 = event.position - Vector2(700, 450)
+		var binding_color = binding.neutral_color
+		if hovered_planet != null:
+			binding_color = binding.good_color
+			bind_position = hovered_planet.position
+			
+		if bind_position.distance_to(source.position) > GameState.get_jump_range():
+			binding_color = binding.bad_color
+			
+		binding.color = binding_color
+		if bind_position != last_bind_position:
+			set_bind_position(bind_position)
 	
 	marks.shift = self.position - Vector2(700, 450)
 	marks.position = -self.position + Vector2(700, 450)

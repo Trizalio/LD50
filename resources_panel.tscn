@@ -21,7 +21,7 @@ margin_bottom = 46.0
 margin_right = 1400.0
 margin_bottom = 46.0
 size_flags_vertical = 0
-custom_constants/margin_right = 250
+custom_constants/margin_right = 30
 custom_constants/margin_top = 12
 custom_constants/margin_left = 30
 custom_constants/margin_bottom = 12
@@ -29,7 +29,7 @@ custom_constants/margin_bottom = 12
 [node name="resources" type="HBoxContainer" parent="inner"]
 margin_left = 30.0
 margin_top = 12.0
-margin_right = 1150.0
+margin_right = 1370.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
 alignment = 1
@@ -52,7 +52,7 @@ cur_value = 100.0
 [node name="population" parent="inner/resources" instance=ExtResource( 3 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_right = 558.0
+margin_right = 668.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 text = "POPULATION"
@@ -61,8 +61,8 @@ cur_value = 10.0
 [node name="year" parent="inner/resources" instance=ExtResource( 3 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 562.0
-margin_right = 1120.0
+margin_left = 672.0
+margin_right = 1340.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 text = "YEAR"
