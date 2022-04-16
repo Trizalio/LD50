@@ -21,7 +21,21 @@ var sprite: Sprite = null
 var title: String
 var is_inhibitable: bool = false setget set_is_inhibitable
 const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
-var ships: int = 0 setget set_ships_amount
+export var ships: int = 0 setget set_ships_amount
+var scanned_power: float = 0 setget set_scanned_power
+
+func set_scanned_power(new_scanned_power: float):
+	scanned_power = new_scanned_power
+	if is_inhibitable:
+		scanned_power = 1
+#	print(scanned_power)
+	$ustar_labels/center/name.visible = scanned_power >= 0.6
+	$button.visible = scanned_power >= 0.3
+	self.modulate.a = clamp(scanned_power * 3, 0, 1)
+	var scale = clamp(scanned_power * 5, 0, 1)
+	self.scale = Vector2(scale, scale)
+#	self.scale = clamp(0.3 + scanned_power * 3, )
+#	$button.visible = scanned_power >= 0.5
 
 func set_ships_amount(new_ships: int):
 	ships = new_ships
@@ -34,6 +48,8 @@ func set_is_inhibitable(new_is_inhibitable):
 	if is_inhibitable:
 		color = Color.white
 	ustar_name.add_color_override("font_color", color)
+	
+	set_scanned_power(scanned_power)
 
 func set_size(new_size: float):
 	size = new_size
@@ -124,6 +140,7 @@ func prepare_name_for_child_planet() -> String:
 var start_position = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
+#	set_scanned_power(scanned_power)
 	start_position = position
 #	$sprite.material = $sprite.material.duplicate()
 	pass # Replace with function body.
@@ -153,6 +170,8 @@ func _prepare_any():
 	$ustar_labels/center/name.text = title
 	sprite.visible = true
 	sprite.material = sprite.material.duplicate()
+	if not is_ustar:
+		scanned_power = 1
 	if is_planet:
 		set_seed(Vector2(Rand.float_in_range(0, 100), Rand.float_in_range(0, 100)))
 	

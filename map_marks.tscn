@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://map_marks.gd" type="Script" id=2]
@@ -139,10 +139,153 @@ shader_param/cell_size = 0.1
 shader_param/cell_width = 0.005
 shader_param/cell_color = Color( 0.992157, 1, 0, 0.611765 )
 
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+//uniform sampler2D star_positions;
+//uniform int stars_amount;
+uniform vec2 shift = vec2(0.);
+uniform vec2 wave_source = vec2(0.);
+uniform float scale = 1.0;
+//uniform float first_zone_range = 0.3;
+//uniform float second_zone_range = 0.6;
+//uniform float lighten_power = .1;
+//uniform float border_width = .05;
+//uniform float border_lighten_power = .1;
+//uniform vec4 second_zone_color: hint_color = vec4(0., 1., .3, .01);
+//uniform float cell_size = 0.1;
+//uniform float cell_width = 0.005;
+//uniform vec4 cell_color: hint_color = vec4(0., 0., .5, .1);
+//const float M_PI = atan(1.) * 4.;
+//const float M_2_PI = M_PI * 2.;
+//const float M_PI_2 = M_PI / 2.;
+
+uniform vec4 main_color: hint_color = vec4(0., .6, .3, .8);
+uniform float wave_center_range = 0.;
+uniform float wave_width = 0.01;
+
+vec4 lighten(vec4 color, float power){
+	vec4 missing_color = vec4(1.) - color;
+	vec4 result = color + missing_color * power;
+	return result;
+}
+vec4 mix_colors(vec4 first, vec4 second){
+	vec4 result = first * (1. - second.a) + second;
+	return result;
+}
+//
+//float abs_angle_diff(float first_angle, float second_angle){
+//	float angle = abs(first_angle - second_angle);
+//	while (angle > M_PI){
+//		angle -= M_2_PI;
+//	}
+//	while (angle < -M_PI){
+//		angle += M_2_PI;
+//	}
+//	return abs(angle);
+//}
+//
+//float get_range_from_border(vec2 frag_coord){
+//	vec2 local = frag_coord.xy - vec2(0.5);
+//	return 1. - max(abs(local.y), abs(local.x)) * 2.;
+//}
+//
+//vec4 get_color_for_zone2(float range, vec4 zone_color, float time){
+//	vec4 result = vec4(0);
+//	float wave_phase = fract(time / range);
+//	if (range < 1.){
+//		float d_range = 1. - range;
+//		float range_from_wave = abs(range - wave_phase);
+////		d_range -= clamp(abs(0.5 - range_from_wave), 0., 1.);
+//		result = zone_color;
+//		result = lighten(result, d_range * lighten_power);
+//		if (d_range < 1. * border_width){
+//			result = lighten(result, border_lighten_power);
+//		}
+//	}
+//	return result;
+//}
+
+void fragment(){
+//	float range_from_border = get_range_from_border(SCREEN_UV.xy);
+	COLOR = vec4(0.);
+//	COLOR.xy = SCREEN_UV.xy;
+//
+	vec2 uv = (UV - vec2(0.5)) * 2. - shift - wave_source;
+	COLOR = vec4(0.);
+	float min_range = 2.;
+	float min_jump_range = 2.;
+	float min_scan_range = 2.;
+	float my_angle = atan(UV.y - 0.5, UV.x - 0.5);
+	float range = distance(vec2(0), uv);
+	
+//	float wave_center_range = 0.3;
+//	float wave_width = 0.1;
+//	float range_from_wave_center = (abs(wave_center_range - range) / wave_width);
+	float range_from_wave_center = (wave_center_range - range) / wave_width;
+	if (range_from_wave_center > 0.){
+		range_from_wave_center *= -0.5;
+	}
+	range_from_wave_center = abs(range_from_wave_center);
+	if (range_from_wave_center < 1.){
+		COLOR = main_color;
+		COLOR.a *= 1. - range_from_wave_center;
+//		COLOR = lighten(COLOR, range_from_wave_center);
+	}
+// 	for(int i = 0; i < stars_amount; ++i){
+//		vec4 position_jump_and_scan_range = get_position_jump_and_scan_range(i);
+//		vec2 position = position_jump_and_scan_range.xy;
+////		vec2 star_position_from_screen_center = position_jump_and_scan_range.xy - vec2(0.5) + shift;
+////		float angle = atan(star_position_from_screen_center.y , star_position_from_screen_center.x);
+////		float angle_diff = abs_angle_diff(my_angle, angle);
+//
+////		if (angle_diff * range_from_border < 0.02) {
+//////		if (abs_angle_diff(my_angle, angle) < 0.1 && range_from_border < 0.2) {
+////			COLOR = vec4(1.);
+////		}
+//		float jump_range = position_jump_and_scan_range.z;
+//		if (jump_range > 0.){
+//			float current_jump_range = distance(uv, position) / jump_range;
+//			min_jump_range = min(min_jump_range, current_jump_range);
+//		}
+//		float scan_range = position_jump_and_scan_range.a;
+//		if (scan_range > 0.){
+//			float current_scan_range = distance(uv, position) / scan_range;
+//			min_scan_range = min(min_scan_range, current_scan_range);
+//		}
+////	}
+//	vec4 first_zone = get_color_for_zone2(min_jump_range, first_zone_color, TIME);
+//	vec4 second_zone = get_color_for_zone2(min_scan_range, second_zone_color, TIME);
+//	COLOR = mix_colors(second_zone, first_zone);
+
+
+//	vec2 cell_uv = mod (uv, cell_size);
+//	if (cell_width > min(cell_uv.x, cell_uv.y)){
+//		float power = max(min(cell_uv.x, cell_width - cell_uv.x), min(cell_uv.y, cell_width - cell_uv.y));
+//		COLOR = mix(COLOR, cell_color, power / cell_width);
+//	}
+
+	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+shader_param/shift = Vector2( 0, 0 )
+shader_param/wave_source = Vector2( 0, 0 )
+shader_param/scale = 1.0
+shader_param/main_color = Color( 0, 0.6, 0.3, 0.8 )
+shader_param/wave_center_range = 0.0
+shader_param/wave_width = 0.01
+
 [node name="map_marks" type="Node2D"]
 script = ExtResource( 2 )
 
 [node name="sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
+scale = Vector2( 22, 22 )
+texture = ExtResource( 1 )
+
+[node name="wave" type="Sprite" parent="."]
+visible = false
+material = SubResource( 4 )
 scale = Vector2( 22, 22 )
 texture = ExtResource( 1 )

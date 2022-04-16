@@ -154,6 +154,38 @@ func ustar_selected(ustar):
 	if ustar != null and ustar != sending_ship_from_ustar:
 		request_flight_confirmation(sending_ship_from_ustar, ustar)
 	sending_ship_from_ustar = null
+
+const scan_power_decay_per = 1
+const scan_speed = 300
+func scan(source, scan_power: float, years: int):
+	print('scan: ', len(ustars))
+	var total_duration: float = 0
+	if years:
+		total_duration = 22 * 64 / (scan_speed * sqrt(2))
+		print('total_duration: ', total_duration)
+		
+		game.universe_map.marks.wave_source = source.position
+		game.universe_map.marks.wave_range = 0
+		Animator.animate(game.universe_map.marks, 'wave_range', 1, total_duration, 
+			Tween.TRANS_LINEAR, Tween.EASE_OUT)
+		game.universe_map.animate(panel, 'cur_year', panel.cur_year + years, total_duration)
+		
+	for star in ustars:
+		var distance = float(source.position.distance_to(star.position))
+		var power = scan_power / (1 + distance / scan_power_decay_per)
+		var target_value = star.scanned_power + power
+		var delay = distance / scan_speed
+		if years:
+			var target_position = get_ustar_position_after_years(star, years)
+			game.universe_map.animate(star, 'position', target_position, total_duration)
+			Animator.call_delayed(game.universe_map, 'animate', delay, star, 
+									'scanned_power', target_value)
+		else:
+			star.scanned_power = target_value
+#		Animator.call_delayed(to, "set_ships_amount", duration, to.ships + 1)
+#		game.universe_map.animate(star, 'scanned_power', target_value)
+#		star.scanned_power += power
+#		star.scanned_power = 1
 	
 
 func button_pressed(object, action: String):
@@ -170,6 +202,10 @@ func button_pressed(object, action: String):
 			game.descend_into_star(object)
 		if action == 'Back':
 			game.recall_universe_camera()
+		if action == 'Scan':
+			scan(object, 50, 10)
+			game.recall_universe_camera()
+#			game.recall_universe_camera()
 	else:
 		if action == 'Back':
 			game.recall_system_camera()
@@ -205,7 +241,8 @@ func button_pressed(object, action: String):
 func get_actions_for_object(object):
 	var actions = []
 	if object.is_ustar:
-		
+	
+		actions += ["Scan"]
 		if object.ships:
 			actions += ["Send ship"]
 		if object.ships or is_ustar_scannable(object):
@@ -359,6 +396,7 @@ func generate_random_ustars():
 	home_planet.is_inhibitable = true
 	print('generate_random_planets generated: ', len(stars))
 	ustars = stars
+	scan(nearest_ustar, 25, 0)
 	return stars
 
 #func get_ustars():
