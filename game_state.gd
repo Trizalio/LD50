@@ -65,14 +65,16 @@ func request_flight_confirmation(from, to):
 			"confirmation_got", [from, to]
 		)
 
-const float_double_range_per_years = 1000
+const float_double_range_per_years = 2000
 func get_ustar_position_after_years(ustar, years: float) -> Vector2:
 	return ustar.position * (float_double_range_per_years + years) / float_double_range_per_years
 
 func check_for_game_over():
+	print('check_for_game_over')
 #	var ustars = ustar_to_planets.keys()
 	var inhibited_stars_amount = 0
 	var jump_range = get_jump_range()
+	var checked: int = 0
 	for i in range(0, len(ustars)):
 		var current = ustars[i]
 #		print(i, current.is_inhibitable)
@@ -80,12 +82,14 @@ func check_for_game_over():
 			inhibited_stars_amount += 1
 		else:
 			for j in range(i, len(ustars)):
+				checked += 1
 #				print(j)
 				var other = ustars[j]
 				if ((other.is_inhibitable or other.ships > 0) 
 					and get_flight_duration(current, other) < jump_range):
-					print('found')
+					print('found after ', checked, ' checks')
 					return
+	print('not found what to do after', checked, ' checks')
 	print("GAME OVER")
 	
 #	'cosmological horizon'
@@ -302,18 +306,27 @@ func generate_random_planets(ustar):
 	return planets
 	
 func generate_random_squere_position():
-	var x = Rand.float_in_range(-675, 675)
-	var y = Rand.float_in_range(-375, 425)
-	return Vector2(x, y)
+	
+	var angle = Rand.float_in_range(0, PI * 2)
+	var distance = Rand.float_in_range(0, 600)
+	var position = Vector2(distance, distance)
+	position = position.rotated(angle)
+	return position
+	
+#	var x = Rand.float_in_range(-650, 650) * 2
+#	var y = Rand.float_in_range(-400, 400) * 2
+#	return Vector2(x, y)
 	
 var ustars = []
+const min_range_between_stars = 70
+const stars_amount = 100
 var vector
 func generate_random_ustars():
 	print('generate_random_stars')
 	var stars = []
 	var min_range_from_center = 10000
 	var nearest_ustar = null
-	while len(stars) < 50:
+	while len(stars) < stars_amount:
 #		print('generate_random_planets add planet')
 		var new_star = PlanetScene.instance()
 		new_star.prepare_ustar()
@@ -323,7 +336,7 @@ func generate_random_ustars():
 			
 			conflict = false
 			for star in stars:
-				if new_star.position.distance_to(star.position) < 75:
+				if new_star.position.distance_to(star.position) < min_range_between_stars:
 					conflict = true
 #					print('conflict')
 					break

@@ -37,7 +37,7 @@ func _ready():
 	pass # Replace with function body.
 	
 func load_universe(ustars: Array):
-	print('load_universe: ', ustars)
+	print('load_universe: ', len(ustars))
 	clear_planets()
 	for star in ustars:
 		add_planet(star)

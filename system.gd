@@ -69,7 +69,10 @@ func ascend_to_universe():
 	var universe_map = $universe_map
 	var system_map = $system_map
 	var current_ustar_pos = universe_map.current_planet.position
-	system_map.recall_camera(SYSTEM_DEFAULT_ZOOM, current_ustar_pos)
+	print('--== recall: ', current_ustar_pos - screen_half - universe_map.position)
+	system_map.recall_camera(SYSTEM_DEFAULT_ZOOM, 
+		current_ustar_pos - screen_half + universe_map.position
+	)
 	system_map.animate(system_map, 'modulate', TRANSPARENT)
 	universe_map.animate(universe_map, 'modulate', OPAQUE)
 #	Animator.animate(
@@ -196,17 +199,18 @@ func get_range_from_rect(rect: Rect2, point: Vector2) -> Vector2:
 	rect = rect.abs()
 	var result: Vector2 = Vector2()
 	if point.x < rect.position.x:
-		result.x = rect.position.x - point.x
+		result.x = point.x - rect.position.x
 	elif point.x > rect.end.x:
 		result.x = point.x - rect.end.x
 		
 	if point.y < rect.position.y:
-		result.y = rect.position.y - point.y
+		result.y = point.y - rect.position.y
 	elif point.y > rect.end.y:
 		result.y = point.y - rect.end.y
 		
 	return result
 
+const screen_half = Vector2(700, 450)
 #onready var camera_speed_to_inhibited_planet: Vector2 = Vector2()
 func _process(delta):
 	if move_direction and not tracking and not universe_map.current_planet:
@@ -225,7 +229,6 @@ func _process(delta):
 	if inhabited_zone is Rect2:
 		
 		var zone: Rect2
-		var screen_half = Vector2(700, 450)
 		var screen_shift = Vector2(0, 0) * 0;
 		var allowed_zone = inhabited_zone.grow_individual(
 			screen_half.x, screen_half.y, screen_half.x, screen_half.y)
@@ -244,9 +247,8 @@ func _process(delta):
 
 		var range_from_allowed_zone = get_range_from_rect(allowed_zone, universe_map_center_position)
 		
-#		print(range_from_allowed_zone)
 		if range_from_allowed_zone:
-			universe_map.position += delta * range_from_allowed_zone
+			universe_map.position -= delta * range_from_allowed_zone
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()
