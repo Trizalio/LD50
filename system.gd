@@ -192,10 +192,29 @@ func on_map_contols_move(direction: Vector2):
 		move_direction = -direction * 300
 
 
+func get_range_from_rect(rect: Rect2, point: Vector2) -> Vector2:
+	rect = rect.abs()
+	var result: Vector2 = Vector2()
+	if point.x < rect.position.x:
+		result.x = rect.position.x - point.x
+	elif point.x > rect.end.x:
+		result.x = point.x - rect.end.x
+		
+	if point.y < rect.position.y:
+		result.y = rect.position.y - point.y
+	elif point.y > rect.end.y:
+		result.y = point.y - rect.end.y
+		
+	return result
 
+#onready var camera_speed_to_inhibited_planet: Vector2 = Vector2()
 func _process(delta):
 	if move_direction and not tracking and not universe_map.current_planet:
 		universe_map.position += delta * move_direction
+		
+		
+#	if camera_speed_to_inhibited_planet:
+#		universe_map.position += delta * camera_speed_to_inhibited_planet
 	
 		
 	if tracking:
@@ -204,6 +223,7 @@ func _process(delta):
 		universe_map.position = (target_position * power + universe_map.position) / (1 + power)
 	
 	if inhabited_zone is Rect2:
+		
 		var zone: Rect2
 		var screen_half = Vector2(700, 450)
 		var screen_shift = Vector2(0, 0) * 0;
@@ -215,12 +235,18 @@ func _process(delta):
 	#		universe_map_left_border = inhabited_zone.end.x
 	#		universe_map_center_position.x = 
 	#	print(universe_map_center_position, " -> ", inhabited_zone)
-		universe_map_center_position.x = max(universe_map_center_position.x, allowed_zone.position.x)
-		universe_map_center_position.y = max(universe_map_center_position.y, allowed_zone.position.y)
-		universe_map_center_position.x = min(universe_map_center_position.x, allowed_zone.end.x)
-		universe_map_center_position.y = min(universe_map_center_position.y, allowed_zone.end.y)
-		universe_map.position = universe_map_center_position + screen_half + screen_shift
+	
+#		universe_map_center_position.x = max(universe_map_center_position.x, allowed_zone.position.x)
+#		universe_map_center_position.y = max(universe_map_center_position.y, allowed_zone.position.y)
+#		universe_map_center_position.x = min(universe_map_center_position.x, allowed_zone.end.x)
+#		universe_map_center_position.y = min(universe_map_center_position.y, allowed_zone.end.y)
+#		universe_map.position = universe_map_center_position + screen_half + screen_shift
 
+		var range_from_allowed_zone = get_range_from_rect(allowed_zone, universe_map_center_position)
+		
+#		print(range_from_allowed_zone)
+		if range_from_allowed_zone:
+			universe_map.position += delta * range_from_allowed_zone
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()
