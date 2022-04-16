@@ -137,6 +137,8 @@ func get_jump_range() -> float:
 func get_scan_range() -> float:
 	if is_inhibitable:
 		return GameState.get_scan_range()
+	elif ships:
+		return GameState.get_jump_range()
 	else:
 		return 0.0
 		

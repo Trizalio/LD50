@@ -113,7 +113,7 @@ func check_for_game_over():
 	
 func confirmation_got(from, to):
 	var flight_duration = get_flight_duration(from, to)
-	var duration = pow(flight_duration, 1.1) / 100
+	var duration = pow(flight_duration, 0.5) / 5
 	print("confirmation_got:", from, to)
 	
 	var ship = PlanetScene.instance()
@@ -133,6 +133,7 @@ func confirmation_got(from, to):
 	Animator.call_delayed(game, "track", duration, null)
 	Animator.call_delayed(ship, "set", duration, 'visible', false)
 	Animator.call_delayed(self, "check_for_game_over", duration)
+	Animator.call_delayed(game, "rerender_galaxy", duration)
 	game.track(ship)
 	
 #	to.ships += 1
@@ -203,7 +204,7 @@ func get_actions_for_object(object):
 		
 		if object.ships:
 			actions += ["Send ship"]
-		if is_ustar_scannable(object):
+		if object.ships or is_ustar_scannable(object):
 			actions += ["View"]
 		
 	if object.is_planet:

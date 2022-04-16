@@ -90,8 +90,16 @@ func ascend_to_universe():
 	universe_map.visible = true
 	universe_map.recall_camera(1)
 
+var inhabited_zone = null
 var ustars = []
 func rerender_galaxy():
+	var new_inhabited_zone = null
+	for star in ustars:
+		if star.is_inhibitable or star.ships > 0:
+			if new_inhabited_zone == null:
+				new_inhabited_zone = Rect2(-star.position, Vector2())
+			new_inhabited_zone = new_inhabited_zone.expand(-star.position)
+	inhabited_zone = new_inhabited_zone
 	universe_map.load_universe(ustars)
 	
 func start_select_destination(source_ustar):
@@ -188,11 +196,31 @@ func on_map_contols_move(direction: Vector2):
 func _process(delta):
 	if move_direction and not tracking and not universe_map.current_planet:
 		universe_map.position += delta * move_direction
+	
 		
 	if tracking:
 		var target_position = Vector2(700, 450) - tracking.position
 		var power = 0.1;
 		universe_map.position = (target_position * power + universe_map.position) / (1 + power)
+	
+	if inhabited_zone is Rect2:
+		var zone: Rect2
+		var screen_half = Vector2(700, 450)
+		var screen_shift = Vector2(0, 0) * 0;
+		var allowed_zone = inhabited_zone.grow_individual(
+			screen_half.x, screen_half.y, screen_half.x, screen_half.y)
+		var universe_map_center_position = universe_map.position - screen_half - screen_shift
+	#	var universe_map_left_border: float = (universe_map_center_position - screen_half).x
+	#	if universe_map_left_border > inhabited_zone.end.x:
+	#		universe_map_left_border = inhabited_zone.end.x
+	#		universe_map_center_position.x = 
+	#	print(universe_map_center_position, " -> ", inhabited_zone)
+		universe_map_center_position.x = max(universe_map_center_position.x, allowed_zone.position.x)
+		universe_map_center_position.y = max(universe_map_center_position.y, allowed_zone.position.y)
+		universe_map_center_position.x = min(universe_map_center_position.x, allowed_zone.end.x)
+		universe_map_center_position.y = min(universe_map_center_position.y, allowed_zone.end.y)
+		universe_map.position = universe_map_center_position + screen_half + screen_shift
+
 
 func _on_to_starmap_pressed():
 	ascend_to_universe()
