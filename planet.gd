@@ -23,7 +23,13 @@ var is_inhibitable: bool = false setget set_is_inhibitable
 const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
 export var ships: int = 0 setget set_ships_amount
 var scanned_power: float = 0 setget set_scanned_power
-var planets: Array = []
+var planets: Array = [] setget , get_planets
+
+func get_planets():
+	if not planets and is_ustar:
+		planets = generate_random_planets(self)
+	return planets
+		
 
 func can_be_inspected():
 	return scanned_power >= 0.6
@@ -240,7 +246,6 @@ func prepare_ustar():
 	is_ustar = true
 	title = generate_star_name()
 	sprite = $ustar_sprite
-	planets = generate_random_planets(self)
 	_prepare_any()
 	set_size(Rand.float_in_range(0.3, 0.4))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
