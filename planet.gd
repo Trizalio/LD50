@@ -23,6 +23,10 @@ var is_inhibitable: bool = false setget set_is_inhibitable
 const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
 export var ships: int = 0 setget set_ships_amount
 var scanned_power: float = 0 setget set_scanned_power
+var planets: Array = []
+
+func can_be_inspected():
+	return scanned_power >= 0.6
 
 func set_scanned_power(new_scanned_power: float):
 	scanned_power = new_scanned_power
@@ -194,26 +198,49 @@ func _prepare_planet(ustar):
 	_prepare_any()
 	return self
 	
+func hsv(h: float, s: float, v: float, a: float) -> Color:
+	var hsv_val = Color.from_hsv(h / 360, s / 100, v / 100, a / 255)
+	print('hsv_val:', hsv_val)
+	return hsv_val
+
 func prepare_dwarf_planet(ustar):
 	_prepare_planet(ustar)
+	set_size(Rand.float_in_range(0.1, 0.2))
+	sprite.material.set_shader_param("main_color", hsv(33, 81, 71, 255))
+	sprite.material.set_shader_param("second_color", hsv(0, 100, 33, 255))
+	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(0.8, 1.2))
+	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.3, 0.5))
+	sprite.material.set_shader_param("ice_amount", 0)
 	return self
 	
 func prepare_earth_like_planet(ustar):
 	_prepare_planet(ustar)
 	set_size(Rand.float_in_range(0.2, 0.3))
+	sprite.material.set_shader_param("main_color", hsv(193, 100, 64, 255))
+	sprite.material.set_shader_param("second_color", hsv(115, 110, 33, 255))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
-	sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 2.0))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(0.8, 1.2))
+	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.05, 0.15))
 	sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.2, 0.5))
 	return self
 	
 func prepare_gas_giant(ustar):
 	_prepare_planet(ustar)
+	set_size(Rand.float_in_range(0.3, 0.4))
+	sprite.material.set_shader_param("main_color", hsv(200, 100, 164, 255))
+	sprite.material.set_shader_param("second_color", hsv(200, 110, 133, 255))
+	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(3.0, 6.0))
+	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.6, 0.8))
+	sprite.material.set_shader_param("ice_amount", 0)
 	return self
 	
 func prepare_ustar():
 	is_ustar = true
 	title = generate_star_name()
 	sprite = $ustar_sprite
+	planets = generate_random_planets(self)
 	_prepare_any()
 	set_size(Rand.float_in_range(0.3, 0.4))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
@@ -227,6 +254,46 @@ func prepare_uship():
 #	set_size(Rand.float_in_range(0.3, 0.4))
 	sprite.material.set_shader_param("circle_center_range", 0.0)
 	return self
+	
+
+func generate_random_position():
+	var angle = Rand.float_in_range(0, PI * 2)
+	var distance = Rand.float_in_range(200, 400)
+	var position = Vector2(distance, distance)
+	position = position.rotated(angle)
+	position.y *= 0.7
+	return position
+	
+var PlanetScene = load("res://planet.tscn")
+func generate_random_planets(ustar):
+	print('generate_random_planets for: ', ustar)
+	var planet_chance = 1.0
+	var planet_chance_penalty_per_planet = 0.25
+	var planets = []
+	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
+		print('generate_random_planets add planet')
+		var new_planet = PlanetScene.instance()
+#		new_planet.prepare_dwarf_planet(ustar)
+		if Rand.check(1/3):
+			new_planet.prepare_earth_like_planet(ustar)
+		elif Rand.check(1/2):
+			new_planet.prepare_gas_giant(ustar)
+		else:
+			new_planet.prepare_dwarf_planet(ustar)
+		var conflict = true
+		while conflict:
+			new_planet.position = generate_random_position()
+			
+			conflict = false
+			for planet in planets:
+				if new_planet.position.distance_to(planet.position) < 100:
+					conflict = true
+					print('conflict')
+					break
+					
+		planets.append(new_planet)
+	print('generate_random_planets generated: ', len(planets))
+	return planets
 	
 
 func _process(delta):

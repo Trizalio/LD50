@@ -157,12 +157,15 @@ func set_info_title(text: String):
 		color = Color(1, 1, 1, 1)
 	Animator.animate(title, 'modulate', color, zoom_duration, zoom_trans, zoom_ease)
 	
+#GameState.double_clicked(current_planet)
+var planet_pressed_at = 0
 func planet_pressed(planet):
 	if source != null:
 #		if source != planet:
 #			finish_select_destination(planet)	
 		return
 	if current_planet != planet:
+		planet_pressed_at = OS.get_system_time_msecs()
 #		recall_camera()
 
 		remove_buttons()
@@ -172,8 +175,12 @@ func planet_pressed(planet):
 		add_buttons(actions)
 #		add_buttons(["test", 'other', 'third'])
 	else:
-		recall_camera()
-		remove_buttons()
+		var now = OS.get_system_time_msecs()
+		if now - planet_pressed_at < 500:
+			GameState.button_pressed(current_planet, 'View')
+		else:
+			recall_camera()
+			remove_buttons()
 	
 func move_camera_to_planet(planet, target_zoom_scale = null):
 	if target_zoom_scale == null:

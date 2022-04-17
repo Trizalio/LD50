@@ -199,7 +199,10 @@ func button_pressed(object, action: String):
 			game.start_select_destination(object)
 			game.recall_universe_camera()
 		if action == 'View':
-			game.descend_into_star(object)
+			if object.can_be_inspected():
+				game.descend_into_star(object)
+			else:
+				game.recall_universe_camera()
 		if action == 'Back':
 			game.recall_universe_camera()
 		if action == 'Scan':
@@ -245,7 +248,8 @@ func get_actions_for_object(object):
 		actions += ["Scan"]
 		if object.ships:
 			actions += ["Send ship"]
-		if object.ships or is_ustar_scannable(object):
+		if object.can_be_inspected():
+#		if object.ships or is_ustar_scannable(object):
 			actions += ["View"]
 		
 	if object.is_planet:
@@ -308,39 +312,39 @@ func get_hint_for_object_action(object, action: String):
 			result = 'Colonise system, spend ' + str(int(distance)) + ' years'
 	return '[center]' + result + '[/center]'
 	
-
-func generate_random_position():
-	var angle = Rand.float_in_range(0, PI * 2)
-	var distance = Rand.float_in_range(200, 400)
-	var position = Vector2(distance, distance)
-	position = position.rotated(angle)
-	position.y *= 0.7
-	return position
-	
+#
+#func generate_random_position():
+#	var angle = Rand.float_in_range(0, PI * 2)
+#	var distance = Rand.float_in_range(200, 400)
+#	var position = Vector2(distance, distance)
+#	position = position.rotated(angle)
+#	position.y *= 0.7
+#	return position
+#
 onready var PlanetScene = preload("res://planet.tscn")
-func generate_random_planets(ustar):
-	print('generate_random_planets for: ', ustar)
-	var planet_chance = 1.0
-	var planet_chance_penalty_per_planet = 0.25
-	var planets = []
-	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
-		print('generate_random_planets add planet')
-		var new_planet = PlanetScene.instance()
-		new_planet.prepare_earth_like_planet(ustar)
-		var conflict = true
-		while conflict:
-			new_planet.position = generate_random_position()
-			
-			conflict = false
-			for planet in planets:
-				if new_planet.position.distance_to(planet.position) < 100:
-					conflict = true
-					print('conflict')
-					break
-					
-		planets.append(new_planet)
-	print('generate_random_planets generated: ', len(planets))
-	return planets
+#func generate_random_planets(ustar):
+#	print('generate_random_planets for: ', ustar)
+#	var planet_chance = 1.0
+#	var planet_chance_penalty_per_planet = 0.25
+#	var planets = []
+#	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
+#		print('generate_random_planets add planet')
+#		var new_planet = PlanetScene.instance()
+#		new_planet.prepare_earth_like_planet(ustar)
+#		var conflict = true
+#		while conflict:
+#			new_planet.position = generate_random_position()
+#
+#			conflict = false
+#			for planet in planets:
+#				if new_planet.position.distance_to(planet.position) < 100:
+#					conflict = true
+#					print('conflict')
+#					break
+#
+#		planets.append(new_planet)
+#	print('generate_random_planets generated: ', len(planets))
+#	return planets
 	
 func generate_random_squere_position():
 	
@@ -402,13 +406,14 @@ func generate_random_ustars():
 #func get_ustars():
 #	generate_random_stars()
 
-var ustar_to_planets = {}
+#var ustar_to_planets = {}
 func get_planets_by_ustar(ustar):
-	print('get_planets_by_ustar: ', ustar)
-	if not ustar_to_planets.has(ustar):
-		print('get_planets_by_ustar not found: ', ustar)
-		ustar_to_planets[ustar] = generate_random_planets(ustar)
-	return ustar_to_planets[ustar]
+	return ustar.planets
+#	print('get_planets_by_ustar: ', ustar)
+#	if not ustar_to_planets.has(ustar):
+#		print('get_planets_by_ustar not found: ', ustar)
+#		ustar_to_planets[ustar] = generate_random_planets(ustar)
+#	return ustar_to_planets[ustar]
 	
 
 func get_jump_range():
