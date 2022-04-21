@@ -2,6 +2,7 @@ extends Node2D
 
 export var shift: Vector2 = Vector2() setget set_shift
 export var wave_range: float = 0 setget set_wave_range
+export var wave_color: Color = Color.white setget set_wave_color
 export var wave_source: Vector2 = Vector2() setget set_wave_source
 onready var sprite = $sprite
 onready var wave = $wave
@@ -11,8 +12,12 @@ func set_wave_range(new_wave_range: float):
 	wave_range = new_wave_range
 	wave.material.set_shader_param("wave_center_range", wave_range * sqrt(2))
 	wave.visible = wave_range > 0
-	wave.modulate.a = 1 - new_wave_range
+	wave.modulate.a = wave_color.a * (1 - new_wave_range)
 
+func set_wave_color(new_wave_color: Color):
+	wave_color = new_wave_color
+	wave.modulate = wave_color
+	
 func set_wave_source(new_wave_source: Vector2):
 	wave_source = new_wave_source
 	wave.material.set_shader_param("wave_source", wave_source * 1 / shader_scale)
@@ -30,7 +35,7 @@ func pass_stars_to_marks(ustars):
 	var data = []
 	for star in ustars:
 		var jump_range = star.get_jump_range()
-		var scan_range = 0 #star.get_scan_range()
+		var scan_range = star.get_scan_range()
 		if jump_range > 0 or scan_range > 0:
 			data.append(Color(
 				pack(star.position.x), pack(star.position.y), 

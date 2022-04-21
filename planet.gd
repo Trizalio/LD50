@@ -4,6 +4,46 @@ class_name Planet
 signal pressed
 signal mouse_entered
 signal mouse_exited
+
+
+enum Building {shipyard, launchpad, observatory, storage}
+
+var building = null setget set_building
+
+func set_building(new_building):
+	building = new_building
+	update_selection_color()
+
+var has_observatory: bool = false setget , get_has_observatory
+var has_shipyard: bool = false setget , get_has_shipyard
+var has_launchpad: bool = false setget , get_has_launchpad
+var has_storage: bool = false setget , get_has_storage
+
+func get_has_building(building_) -> bool:
+	if is_ustar:
+		for planet in planets:
+			if planet.get_has_building(building_):
+				return true
+		return false
+		
+	var result = building == building_
+#	print(building, ":get_has_building(", building_, "):", result)
+	return result
+	
+func get_has_observatory() -> bool:
+	return get_has_building(Building.observatory)
+func get_has_shipyard() -> bool:
+	return get_has_building(Building.shipyard)	
+func get_has_launchpad() -> bool:
+	return get_has_building(Building.launchpad)
+func get_has_storage() -> bool:
+	return get_has_building(Building.storage)
+#	if is_ustar:
+#		for planet in planets:
+#			if planet.has_observatory:
+#				return true
+#		return false
+#	return building == Building.observatory
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
@@ -16,14 +56,47 @@ const anim_ease = Tween.EASE_IN_OUT
 var is_ustar: bool = false
 var is_star: bool = false
 var is_planet: bool = false
+var is_dwarf: bool = false
+var is_giant: bool = false
+var is_earth: bool = false
 var is_ship: bool = false
 var sprite: Sprite = null
 var title: String
-var is_inhibitable: bool = false setget set_is_inhibitable
+#var is_inhibitable: bool = false setget set_is_inhibitable
 const gray_color: Color = Color(0.6, 0.6, 0.6, 1)
 export var ships: int = 0 setget set_ships_amount
 var scanned_power: float = 0 setget set_scanned_power
 var planets: Array = [] setget , get_planets
+var depletion: float = 0 setget set_depletion
+const BUILDING_SELECTION_COLOR: Color = Color("#96007096")
+const GOOD_SELECTION_COLOR: Color = Color("#9600c814")
+const NEUTRAL_SELECTION_COLOR: Color = Color("#96966e00")
+const BAD_SELECTION_COLOR: Color = Color("#96c80a00")
+var population: float = 0 setget set_population, get_population
+var selection_color: Color = NEUTRAL_SELECTION_COLOR setget set_selection_color
+func mix_colors(first: Color, second: Color, power: float) -> Color:
+	return first * (1 - power) + second * power
+func update_selection_color():
+	var color = mix_colors(
+		mix_colors(
+			mix_colors(NEUTRAL_SELECTION_COLOR, BUILDING_SELECTION_COLOR, int(building != null)), 
+		GOOD_SELECTION_COLOR, get_population()),
+		BAD_SELECTION_COLOR, depletion
+	)
+	set_selection_color(color)
+
+func set_depletion(new_depletion: float):
+	depletion = new_depletion
+	sprite.material.set_shader_param("grayscale_power", depletion)
+	update_selection_color()
+#	set_selection_color(
+#		NEUTRAL_SELECTION_COLOR * (1 - depletion) + BAD_SELECTION_COLOR * depletion
+#	)
+	
+func set_selection_color(new_selection_color: Color):
+	selection_color = new_selection_color
+	sprite.material.set_shader_param("selection_color", selection_color)
+	
 
 func get_planets():
 	if not planets and is_ustar:
@@ -36,7 +109,7 @@ func can_be_inspected():
 
 func set_scanned_power(new_scanned_power: float):
 	scanned_power = new_scanned_power
-	if is_inhibitable:
+	if population > 0:
 		scanned_power = 1
 #	print(scanned_power)
 	$ustar_labels/center/name.visible = scanned_power >= 0.6
@@ -51,15 +124,35 @@ func set_ships_amount(new_ships: int):
 	ships = new_ships
 	$ship.visible = ships > 0
 
-func set_is_inhibitable(new_is_inhibitable):
-	is_inhibitable = new_is_inhibitable
+#func set_is_inhibitable(new_is_inhibitable):
+#	is_inhibitable = new_is_inhibitable
+#	var ustar_name = $ustar_labels/center/name
+#	var color = gray_color
+#	if is_inhibitable:
+#		color = Color.white
+#	ustar_name.add_color_override("font_color", color)
+#
+#	set_scanned_power(scanned_power)
+
+func get_population():
+	if is_ustar:
+		var result = 0
+		for planet in planets:
+			result += planet.population
+		return result
+	return population
+		
+
+func set_population(new_population: float):
+#	owner_ustar.
+	population = new_population
 	var ustar_name = $ustar_labels/center/name
 	var color = gray_color
-	if is_inhibitable:
+	if population > 0:
 		color = Color.white
 	ustar_name.add_color_override("font_color", color)
-	
 	set_scanned_power(scanned_power)
+	update_selection_color()
 
 func set_size(new_size: float):
 	size = new_size
@@ -87,48 +180,29 @@ func set_seed(new_seed: Vector2):
 	seed_  = new_seed
 
 const FIRST_NAMES = [
-	"ACAMAR", "ACHERNAR", "Achird", "ACRUX", "Acubens", "ADARA", "Adhafera", "Adhil", 
-	"AGENA", "Aladfar", "Alathfar", "Albaldah", "Albali", "ALBIREO", "Alchiba", "ALCOR", 
-	"ALCYONE", "ALDEBARAN", "ALDERAMIN", "Aldhibah", "Alfecca Meridiana", "Alfirk", 
-	"ALGENIB", "ALGIEBA", "ALGOL", "Algorab", "ALHENA", "ALIOTH", "ALKAID", "Alkalurops", 
-	"Alkes", "Alkurhah", "ALMAAK", "ALNAIR", "ALNATH", "ALNILAM", "ALNITAK", "Alniyat", 
-	"Alniyat", "ALPHARD", "ALPHEKKA", "ALPHERATZ", "Alrai", "Alrisha", "Alsafi", "Alsciaukat", 
-	"ALSHAIN", "Alshat", "Alsuhail", "ALTAIR", "Altarf", "Alterf", "Aludra", "Alula Australis", 
-	"Alula Borealis", "Alya", "Alzirr", "Ancha", "Angetenar", "ANKAA", "Anser", "ANTARES", 
-	"ARCTURUS", "Arkab Posterior", "Arkab Prior", "ARNEB", "Arrakis", "Ascella", 
-	"Asellus Australis", "Asellus Borealis", "Asellus Primus", "Asellus Secondus", 
-	"Asellus Tertius", "Asterope", "Atik", "Atlas", "Auva", "Avior", "Azelfafage", 
-	"Azha", "Azmidiske", "Baham", "Baten Kaitos", "Becrux", "Beid", "BELLATRIX", 
-	"BETELGEUSE", "Botein", "Brachium", "CANOPUS", "CAPELLA", "Caph", "CASTOR", 
-	"Cebalrai", "Celaeno", "Chara", "Chort", "COR CAROLI", "Cursa", "Dabih", "Deneb Algedi", 
-	"Deneb Dulfim", "Deneb el Okab", "Deneb el Okab", "Deneb Kaitos Shemali", "DENEB", 
-	"DENEBOLA", "Dheneb", "Diadem", "DIPHDA", "Dschubba", "Dsiban", "DUBHE", 
-	"Ed Asich", "Electra", "ELNATH", "ENIF", "ETAMIN", "FOMALHAUT", "Fornacis", 
-	"Fum al Samakah", "Furud", "Gacrux", "Gianfar", "Gienah Cygni", "Gienah Ghurab",
-	 "Gomeisa", "Gorgonea Quarta", "Gorgonea Secunda", "Gorgonea Tertia", "Graffias", 
-	"Grafias", "Grumium", "HADAR", "Haedi", "HAMAL", "Hassaleh", "Head of Hydrus", 
-	"Heze", "Hoedus II", "Homam", "Hyadum I", "Hyadum II", "IZAR", "Jabbah", 
-	"Kaffaljidhma", "Kajam", "KAUS AUSTRALIS", "Kaus Borealis", "Kaus Meridionalis", 
-	"Keid", "Kitalpha", "KOCAB", "Kornephoros", "Kraz", "Kuma", "Lesath", "Maasym", 
-	"Maia", "Marfak", "Marfak", "Marfic", "Marfik", "MARKAB", "Matar", "Mebsuta", 
-	"MEGREZ", "Meissa", "Mekbuda", "Menkalinan", "MENKAR", "Menkar", "Menkent", 
-	"Menkib", "MERAK", "Merga", "Merope", "Mesarthim", "Metallah", "Miaplacidus", 
-	"Minkar", "MINTAKA", "MIRA", "MIRACH", "Miram", "MIRPHAK", "MIZAR", "Mufrid",
-	 "Muliphen", "Murzim", "Muscida", "Muscida", "Muscida", "Nair al Saif", "Naos", 
-	"Nash", "Nashira", "Nekkar", "NIHAL", "Nodus Secundus", "NUNKI", "Nusakan", 
-	"Peacock", "PHAD", "Phaet", "Pherkad Minor", "Pherkad", "Pleione", "Polaris Australis", 
-	"POLARIS", "POLLUX", "Porrima", "Praecipua", "Prima Giedi", "PROCYON", "Propus", "Propus", 
-	"Propus", "Rana", "Ras Elased Australis", "Ras Elased Borealis", "RASALGETHI", "RASALHAGUE", 
-	"Rastaban", "REGULUS", "Rigel Kentaurus", "RIGEL", "Rijl al Awwa", "Rotanev", "Ruchba", 
-	"Ruchbah", "Rukbat", "Sabik", "Sadalachbia", "SADALMELIK", "Sadalsuud", "Sadr", "SAIPH", 
-	"Salm", "Sargas", "Sarin", "Sceptrum", "SCHEAT", "Secunda Giedi", "Segin", "Seginus", 
-	"Sham", "Sharatan", "SHAULA", "SHEDIR", "Sheliak", "SIRIUS", "Situla", "Skat", "SPICA", 
-	"Sterope II", "Sualocin", "Subra", "Suhail al Muhlif", "Sulafat", "Syrma", 
-	"Talitha", "Tania Australis", "Tania Borealis", "TARAZED", "Taygeta", "Tegmen", 
-	"Tejat Posterior", "Terebellum", "Terebellum", "Terebellum", "Terebellum", "Thabit", 
-	"Theemim", "THUBAN", "Torcularis Septentrionalis", "Turais", "Tyl", "UNUKALHAI", "VEGA", 
-	"VINDEMIATRIX", "Wasat", "Wezen", "Wezn", "Yed Posterior", "Yed Prior", "Yildun", 
-	"Zaniah", "Zaurak", "Zavijah", "Zibal", "Zosma"
+	'Acamar', 'Achernar', 'Achird', 'Acrux', 'Adara', 'Adhafera', 'Adhil', 'Agena', 
+	'Aladfar', 'Albaldah', 'Albali', 'Albireo', 'Alchiba', 'Alcor', 'Aldhibah', 
+	'Alfirk', 'Algenib', 'Algol', 'Algorab', 'Alhena', 'Alioth', 'Alkaid', 'Alkes', 
+	'Almaak', 'Alnair', 'Alnath', 'Alnilam', 'Alnitak', 'Alniyat', 'Alniyat', 'Alphard', 
+	'Alrai', 'Alrisha', 'Alsafi', 'Alshain', 'Alshat', 'Altair', 'Altarf', 'Aludra', 
+	'Alya', 'Alzirr', 'Anser', 'Antares', 'Arcturus', 'Arkab', 'Arneb', 'Arrakis', 
+	'Ascella', 'Asellus', 'Asterope', 'Atik', 'Atlas', 'Auva', 'Avior', 'Azha', 'Baham', 
+	'Becrux', 'Beid', 'Botein', 'Brachium', 'Canopus', 'Capella', 'Castor', 'Cebalrai', 
+	'Celaeno', 'Chara', 'Chort', 'Cursa', 'Dabih', 'Deneb', 'Diadem', 'Diphda', 
+	'Dschubba', 'Dsiban', 'Electra', 'Elnath', 'Enif', 'Etamin', 'Fornacis', 'Furud', 
+	'Gacrux', 'Gianfar', 'Gomeisa', 'Gorgonea', 'Grafias', 'Grumium', 'Hadar', 'Haedi', 
+	'Hamal', 'Hassaleh', 'Heze', 'Homam', 'Izar', 'Jabbah', 'Kajam', 'Kaus', 'Keid', 
+	'Kitalpha', 'Kraz', 'Kuma', 'Lesath', 'Maasym', 'Maia', 'Marfik', 'Markab', 'Matar', 
+	'Mebsuta', 'Megrez', 'Meissa', 'Mekbuda', 'Menkar', 'Menkent', 'Menkib', 'Merak', 
+	'Merga', 'Merope', 'Metallah', 'Minkar', 'Mintaka', 'Mira', 'Mirach', 'Miram', 
+	'Mirphak', 'Mizar', 'Mufrid', 'Muliphen', 'Murzim', 'Muscida', 'Naos', 'Nash', 
+	'Nashira', 'Nekkar', 'Nihal', 'Nusakan', 'Phad', 'Phaet', 'Pherkad', 'Pleione', 
+	'Polaris', 'Pollux', 'Porrima', 'Procyon', 'Propus', 'Rana', 'Rastaban', 'Regulus', 
+	'Rigel', 'Rotanev', 'Ruchba', 'Ruchbah', 'Sabik', 'Sadr', 'Saiph', 'Salm', 'Sargas', 
+	'Sarin', 'Sceptrum', 'Scheat', 'Segin', 'Sham', 'Sharatan', 'Shaula', 'Shedir', 
+	'Sheliak', 'Sirius', 'Situla', 'Skat', 'Spica', 'Sualocin', 'Subra', 'Sulafat', 
+	'Syrma', 'Talitha', 'Tarazed', 'Taygeta', 'Tegmen', 'Thabit', 'Theemim', 'Thuban', 
+	'Turais', 'Tyl', 'Vega', 'Wasat', 'Wezen', 'Yildun', 'Zaurak', 'Zibal'
 ]
 const SECOND_NAMES = [
 	"Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", 
@@ -145,29 +219,72 @@ func generate_planet_name(ustar) -> String:
 var child_planets_amount: int = 0
 func prepare_name_for_child_planet() -> String:
 	child_planets_amount += 1
-	return self.title + " " + SECOND_NAMES[child_planets_amount]
+	return self.title + " " + SECOND_NAMES[child_planets_amount - 1]
 
 var start_position = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	set_selection(0)
 #	set_scanned_power(scanned_power)
 	start_position = position
 #	$sprite.material = $sprite.material.duplicate()
 	pass # Replace with function body.
 	
+func get_ship_build_cost() -> float:
+	var result = GameState.SHIP_BUILD_COST_MATERIALS
+	if get_has_shipyard():
+		result = GameState.SHIP_BUILD_COST_MATERIALS_WITH_SHIPYARD
+	return float(result)
+	
+func get_ship_build_duration() -> float:
+	var result = GameState.SHIP_BUILD_DURATION
+	if get_has_shipyard():
+		result = GameState.SHIP_BUILD_DURATION_WITH_SHIPYARD
+	return float(result)
+
 func get_jump_range() -> float:
+	var result: float = 0.0
 	if ships:
-		return GameState.get_jump_range()
-	else:
-		return 0.0
+		result = GameState.get_jump_range()
+	
+	if get_has_launchpad():
+		result *= 3
+		
+	return result
 	
 func get_scan_range() -> float:
-	if is_inhibitable:
-		return GameState.get_scan_range()
-	elif ships:
-		return GameState.get_jump_range()
-	else:
-		return 0.0
+	var result: float = 0
+	if ships:
+		result = max(result, GameState.get_ship_observe_range())
+	if population > 0:
+		result = max(result, GameState.get_star_observe_range())
+	if get_has_observatory():
+		result = max(result, GameState.get_star_scan_range())
+	return result
+#	if population > 0:
+#		return GameState.get_observe_range()
+#	elif ships:
+#		return GameState.get_jump_range()
+#	else:
+#		return 0.0
+func get_resources_base_amount() -> float:
+	return pow(size, 2) * (1 - depletion) * 2000
+func get_materials_amount() -> float:
+	var materials_coef = 1
+	if is_dwarf:
+		materials_coef = 3
+	if is_giant:
+		materials_coef = 0.1
+	var result = get_resources_base_amount() * materials_coef
+	print('get_materials_amount:', result)
+	return result
+func get_energy_amount() -> float:
+	var energy_coef = 1
+	if is_dwarf:
+		energy_coef = 0.5
+	if is_giant:
+		energy_coef = 1
+	return get_resources_base_amount() * energy_coef
 		
 onready var name_node = $ustar_labels/center/name
 func on_zoomed():
@@ -209,37 +326,64 @@ func hsv(h: float, s: float, v: float, a: float) -> Color:
 	print('hsv_val:', hsv_val)
 	return hsv_val
 
+
+
 func prepare_dwarf_planet(ustar):
 	_prepare_planet(ustar)
+	is_dwarf = true
 	set_size(Rand.float_in_range(0.1, 0.2))
-	sprite.material.set_shader_param("main_color", hsv(33, 81, 71, 255))
-	sprite.material.set_shader_param("second_color", hsv(0, 100, 33, 255))
+	sprite.material.set_shader_param("main_color", 
+		hsv(0 + Rand.frange(0, 255), 50 + Rand.frange(-25, 25), 50 + Rand.frange(-25, 25), 255))
+	sprite.material.set_shader_param("second_color", 
+		hsv(0 + Rand.frange(0, 255), 50 + Rand.frange(-25, 25), 30 + Rand.frange(-25, 25), 255))
+	sprite.material.set_shader_param("atmosphere_color", hsv(0, 0, 0, 0))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
 	sprite.material.set_shader_param("striping", Rand.float_in_range(0.8, 1.2))
-	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.3, 0.5))
+	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.35, 0.5))
 	sprite.material.set_shader_param("ice_amount", 0)
+	sprite.material.set_shader_param("relief_power", Rand.float_in_range(0.4, 0.5))
 	return self
 	
 func prepare_earth_like_planet(ustar):
 	_prepare_planet(ustar)
+	is_earth = true
 	set_size(Rand.float_in_range(0.2, 0.3))
-	sprite.material.set_shader_param("main_color", hsv(193, 100, 64, 255))
-	sprite.material.set_shader_param("second_color", hsv(115, 110, 33, 255))
+	sprite.material.set_shader_param("main_color", 
+		hsv(193 + Rand.frange(-25, 25), 100 + Rand.frange(-15, 0), 64 + Rand.frange(-15, 15), 255))
+	sprite.material.set_shader_param("second_color", 
+		hsv(115 + Rand.frange(-25, 25), 100 + Rand.frange(-15, 0), 33 + Rand.frange(-15, 15), 255))	
+	sprite.material.set_shader_param("atmosphere_color", hsv(193, 100, 64, 100))
+	sprite.material.set_shader_param("atmosphere_amount", Rand.float_in_range(0.15, 0.25))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
 	sprite.material.set_shader_param("striping", Rand.float_in_range(0.8, 1.2))
 	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.05, 0.15))
 	sprite.material.set_shader_param("ice_amount", Rand.float_in_range(0.2, 0.5))
+	sprite.material.set_shader_param("relief_power", Rand.float_in_range(0.4, 0.5))
 	return self
 	
 func prepare_gas_giant(ustar):
 	_prepare_planet(ustar)
+	is_giant = true
 	set_size(Rand.float_in_range(0.3, 0.4))
-	sprite.material.set_shader_param("main_color", hsv(200, 100, 164, 255))
-	sprite.material.set_shader_param("second_color", hsv(200, 110, 133, 255))
+	sprite.material.set_shader_param("main_color", 
+		hsv(0 + Rand.frange(0, 255), 40 + Rand.frange(-25, 15), 60 + Rand.frange(-25, 25), 255))
+#		hsv(0, 0, 0, 255))
+#		hsv(200, 100, 100, 255))
+	sprite.material.set_shader_param("second_color", 
+		hsv(0 + Rand.frange(0, 255), 40 + Rand.frange(-25, 15), 60 + Rand.frange(-25, 25), 255))
+#		hsv(0, 0, 0, 255))
+#		hsv(200, 110, 100, 255))
+	sprite.material.set_shader_param("atmosphere_color", 
+		hsv(0 + Rand.frange(0, 255), 40 + Rand.frange(-25, 15), 60 + Rand.frange(-25, 25), 50))
+#		hsv(0, 0, 0, 255))
+#		hsv(200, 110, 100, 255))
 	sprite.material.set_shader_param("rotation_speed", Rand.float_in_range(0.05, 0.2))
-	sprite.material.set_shader_param("striping", Rand.float_in_range(3.0, 6.0))
-	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.6, 0.8))
+#	sprite.material.set_shader_param("striping", Rand.float_in_range(1.0, 1.5))
+	sprite.material.set_shader_param("striping", Rand.float_in_range(1.75, 2.25))
+	sprite.material.set_shader_param("main_and_second_colors_mixing", Rand.float_in_range(0.5, 0.7))
 	sprite.material.set_shader_param("ice_amount", 0)
+	sprite.material.set_shader_param("relief_power", 0)
+#	sprite.material.set_shader_param("atmosphere_color", "2e2d436d")
 	return self
 	
 func prepare_ustar():
@@ -263,25 +407,45 @@ func prepare_uship():
 
 func generate_random_position():
 	var angle = Rand.float_in_range(0, PI * 2)
-	var distance = Rand.float_in_range(200, 400)
+	var distance = Rand.float_in_range(200, 350)
 	var position = Vector2(distance, distance)
 	position = position.rotated(angle)
-	position.y *= 0.7
+	position.y *= 0.6
 	return position
+	
+func add_earth_planet():
+	var new_planet = PlanetScene.instance()
+	new_planet.prepare_earth_like_planet(self)
+	var conflict = true
+	while conflict:
+		new_planet.position = generate_random_position()
+		
+		conflict = false
+		for planet in planets:
+			if new_planet.position.distance_to(planet.position) < 100:
+				conflict = true
+				print('conflict')
+				break
+				
+	planets.append(new_planet)
+	return new_planet
+	
 	
 var PlanetScene = load("res://planet.tscn")
 func generate_random_planets(ustar):
 	print('generate_random_planets for: ', ustar)
 	var planet_chance = 1.0
-	var planet_chance_penalty_per_planet = 0.25
+	var planet_chance_penalty_per_planet = 0.2
 	var planets = []
+#	while len(planets) < 20:
 	while Rand.check(planet_chance - len(planets) * planet_chance_penalty_per_planet):
 		print('generate_random_planets add planet')
 		var new_planet = PlanetScene.instance()
-#		new_planet.prepare_dwarf_planet(ustar)
-		if Rand.check(1/3):
+#		new_planet.prepare_earth_like_planet(ustar)
+#		new_planet.prepare_gas_giant(ustar)
+		if Rand.check(1.0/3.0):
 			new_planet.prepare_earth_like_planet(ustar)
-		elif Rand.check(1/2):
+		elif Rand.check(1.0/2.0):
 			new_planet.prepare_gas_giant(ustar)
 		else:
 			new_planet.prepare_dwarf_planet(ustar)

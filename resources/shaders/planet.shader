@@ -8,6 +8,7 @@ uniform vec4 main_color: hint_color = vec4(1., 0., 0., 1.);
 uniform vec4 second_color: hint_color = vec4(1., 0., 0., 1.);
 uniform vec4 polar_ice_color: hint_color = vec4(vec3(0.8), 1.);
 uniform vec4 atmosphere_color: hint_color = vec4(0., 0., .9, .3);
+uniform float atmosphere_amount = .2;
 uniform vec4 selection_color: hint_color = vec4(0.5, 0.5, .0, .6);
 uniform float selection_width = 0.08;
 uniform float selection_gap = 0.0;
@@ -18,6 +19,8 @@ uniform float striping = 5.;
 uniform float ice_amount = .2;
 uniform float main_and_second_colors_mixing = .3;
 uniform float main_and_second_colors_distribution = .5;
+uniform float relief_power = .5;
+uniform float grayscale_power = .0;
 //
 const float inner_part = 0.9;
 const float inner_alpha = 0.9;
@@ -39,6 +42,12 @@ float get_shift(float y, float x){
 	float psi = atan(x, R) * .5;
 	float r = cos(psi) * R;
 	return -r;
+}
+
+vec4 grayscale(vec4 color, float power){
+	float avg_color = (color.x + color.y + color.z) / 3.;
+	color.xyz = mix(color.xyz, vec3(avg_color), power);
+	return color;
 }
 
 void fragment(){
@@ -64,13 +73,33 @@ void fragment(){
 	COLOR.rgba = vec4(.0);
 	vec4 atmosphere = atmosphere_color;
 	if (base > outer_radius ){
-		atmosphere.a -= clamp(pow(base - outer_radius, 3.) * 50000., 0., 1.) ;
+		float range_from_surface = base / outer_radius - 1.;
+		float atmosphere_power = (1. - range_from_surface / atmosphere_amount);
+//		COLOR.r = atmosphere_power;
+//		COLOR.a = 1.;
+//		float atmosphere_power = (1. - (base / outer_radius - 1.)) * atmosphere_amount;
+////		float atmosphere_power = outer_radius / base / 2.;
+////		float atmosphere_power = 1. - (1. - outer_radius / base) * 2.;
+////		float atmosphere_power = 1. - pow((base - outer_radius) * 2., 2.);
+		atmosphere.a *= clamp(atmosphere_power, 0., 1.);
+////		atmosphere.a -= clamp(pow((base - outer_radius) * 2., atmosphere_amount) * 5000., 0., 1.) ;
+////		atmosphere.a -= clamp(pow((base - outer_radius) * 2., atmosphere_amount) * 5000., 0., 1.) ;
 		COLOR = atmosphere;
 			
 
 		if (base > selection_from && base < selection_to){
 			float selection_power = pow(min(base-selection_from, selection_to-base) / selection_width, 2.) * 4.;
 			COLOR = mix(COLOR, selection_color, selection_power);
+		}else{
+//
+			float reflectivness = .9;
+			float darken_power = pow((1. - (outer_radius - base) / outer_radius), 1.5);
+			COLOR.a *= 1. + darken_power / 2.;
+//			COLOR = darken(COLOR, darken_power * .6);
+			float lighten_power = (selection_gap * -y * 45. - darken_power * 0.4) * reflectivness;
+			lighten_power = clamp(lighten_power, -1., 1.);
+			COLOR = lighten(COLOR, lighten_power);
+			COLOR = grayscale(COLOR, grayscale_power);
 		}
 	}
 	else {
@@ -127,9 +156,14 @@ void fragment(){
 //		}else{
 //		}
 		
-		COLOR = lighten(COLOR, (power_ - 0.5) * 0.5);
-		COLOR = darken(COLOR, (0.5 - power_) * 0.5);
+		COLOR = lighten(COLOR, (power_ - 0.5) * relief_power);
+		COLOR = darken(COLOR, (0.5 - power_) * relief_power);
+		
+		COLOR = grayscale(COLOR, grayscale_power);
 	}
-	COLOR.rgb = mix(COLOR.rgb, atmosphere.rgb, atmosphere.a);
+//
+//	float darken_power2 = pow((1. - (outer_radius - base) / outer_radius), 1.5);
+//	COLOR = darken(COLOR, darken_power2 * .6);
+	COLOR.rgb = mix(COLOR.rgb, atmosphere.rgb, atmosphere.a / 2.);
 	COLOR = clamp(COLOR, vec4(0.), vec4(1.));
 }

@@ -146,17 +146,20 @@ shader_param/ice_color_reflectivness = 0.7
 shader_param/main_color = Color( 0.611765, 0.576471, 0.411765, 1 )
 shader_param/second_color = Color( 0.501961, 0.211765, 0.109804, 1 )
 shader_param/polar_ice_color = Color( 0.8, 0.8, 0.8, 1 )
-shader_param/atmosphere_color = Color( 0.176471, 0.262745, 0.427451, 0.180392 )
-shader_param/selection_color = Color( 0.5, 0.5, 0, 0.6 )
+shader_param/atmosphere_color = Color( 0.501961, 0.211765, 0.109804, 0.392157 )
+shader_param/atmosphere_amount = 0.207
+shader_param/selection_color = Color( 0.501961, 0.501961, 0, 0.6 )
 shader_param/selection_width = 0.08
-shader_param/selection_gap = 0.0
+shader_param/selection_gap = 0.05
 shader_param/rotation_speed = 0.1
 shader_param/seed = Vector2( 0.103, -0.39 )
 shader_param/size = 0.4
-shader_param/striping = 2.0
+shader_param/striping = 1.938
 shader_param/ice_amount = 0.0
-shader_param/main_and_second_colors_mixing = 0.7
+shader_param/main_and_second_colors_mixing = 0.701
 shader_param/main_and_second_colors_distribution = 0.5
+shader_param/relief_power = 0.0
+shader_param/grayscale_power = 0.0
 shader_param/noise = SubResource( 6 )
 
 [sub_resource type="Shader" id=8]

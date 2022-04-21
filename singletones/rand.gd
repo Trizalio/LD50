@@ -5,7 +5,16 @@ var rand = RandomNumberGenerator.new()
 func _ready():
 	rand.randomize()
 
+func normalised():
+	return rand.randf_range(0, 1)
+
+func signed_normalised():
+	return rand.randf_range(-1, 1)
+	
 func float_in_range(from: float, to: float):
+	return rand.randf_range(from, to)
+	
+func frange(from: float, to: float):
 	return rand.randf_range(from, to)
 	
 func check(chance: float) -> bool:

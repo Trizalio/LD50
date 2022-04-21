@@ -241,9 +241,11 @@ __meta__ = {
 }
 
 [node name="resources_panel" parent="vbox" instance=ExtResource( 1 )]
+margin_bottom = 58.0
 size_flags_horizontal = 3
 
 [node name="map_controls" parent="vbox" instance=ExtResource( 3 )]
+margin_top = 58.0
 
 [node name="to_science" type="Button" parent="."]
 visible = false

@@ -73,7 +73,10 @@ func add_planet(planet: Planet):
 func remove_buttons():
 	var buttons_node = $buttons
 	for button in buttons_node.get_children():
-		button.disabled = true
+#		button.disabled = true
+		button.disconnect("pressed", self, 'button_pressed')
+		button.disconnect("mouse_entered", self, 'show_action_hint')
+		button.disconnect("mouse_exited", self, 'show_object_hint')
 		var target_position = Vector2(button_outer_x, button.rect_position.y)
 		Animator.animate(button, 'rect_position', target_position, zoom_duration, zoom_trans, zoom_ease)
 		Animator.animate(button, 'modulate', Color(1, 1, 1, 0), zoom_duration, zoom_trans, zoom_ease, true)
@@ -90,6 +93,9 @@ func add_buttons(button_texts: Array):
 	for i in len(button_texts):
 		var text = button_texts[i]
 		var new_button = PlanetButton.instance()
+		if text.begins_with("-"):
+			new_button.disabled = true
+			text = text.trim_prefix("-")
 		new_button.text = text
 		new_button.modulate = Color(1, 1, 1, 0)
 		new_button.rect_position.y = start_height + height_per_button * i
@@ -119,8 +125,9 @@ func show_object_hint():
 	animate(description_node, 'modulate', color)
 		
 func show_action_hint(button: Button):
-	if button.disabled:
-		return
+#	print('show_action_hint:', button)
+#	if button.disabled:
+#		return
 	var action = button.text
 	var description_node = $info/description
 	var description = GameState.get_hint_for_object_action(current_planet, action)
@@ -279,7 +286,7 @@ func _process(delta):
 			binding_color = binding.good_color
 			bind_position = hovered_planet.position
 			
-		if bind_position.distance_to(source.position) > GameState.get_jump_range():
+		if bind_position.distance_to(source.position) > GameState.get_current_jump_range():
 			binding_color = binding.bad_color
 			
 		binding.color = binding_color

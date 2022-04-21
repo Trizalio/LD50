@@ -98,7 +98,7 @@ var ustars = []
 func rerender_galaxy():
 	var new_inhabited_zone = null
 	for star in ustars:
-		if star.is_inhibitable or star.ships > 0:
+		if star.population > 0 or star.ships > 0:
 			if new_inhabited_zone == null:
 				new_inhabited_zone = Rect2(-star.position, Vector2())
 			new_inhabited_zone = new_inhabited_zone.expand(-star.position)

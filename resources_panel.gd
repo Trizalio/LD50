@@ -12,24 +12,26 @@ export var cur_population: int = 10 setget set_cur_population
 
 func set_max_materials(new_max_materials: float):
 	max_materials = new_max_materials
+	set_cur_materials(cur_materials)
 	var resource_node = get_node("inner/resources/materials")
 	if resource_node != null:
 		resource_node.max_value = max_materials
 	
 func set_cur_materials(new_cur_materials: float):
-	cur_materials = new_cur_materials
+	cur_materials = min(new_cur_materials, max_materials)
 	var resource_node = get_node("inner/resources/materials")
 	if resource_node != null:
 		resource_node.cur_value = cur_materials
 
 func set_max_energy(new_max_energy: float):
 	max_energy = new_max_energy
+	set_cur_energy(cur_energy)
 	var resource_node = get_node("inner/resources/energy")
 	if resource_node != null:
 		resource_node.max_value = max_energy
 	
 func set_cur_energy(new_cur_energy: float):
-	cur_energy = new_cur_energy
+	cur_energy = min(new_cur_energy, max_energy)
 	var resource_node = get_node("inner/resources/energy")
 	if resource_node != null:
 		resource_node.cur_value = cur_energy
